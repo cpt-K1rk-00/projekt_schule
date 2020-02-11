@@ -1,4 +1,4 @@
-package projekt_schule.client;
+package client;
 
 public class User {
 	

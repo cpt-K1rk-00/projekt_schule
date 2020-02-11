@@ -1,4 +1,4 @@
-package projekt_schule.client;
+package client;
 
 import javafx.application.*;
 import javafx.event.ActionEvent;

@@ -1,10 +1,10 @@
-package projekt_schule.client;
-
+package client;
 
 /**
 * Die Klasse dient der Kommunikation zwischen dem Server und der GUI.
 * In der Process Message Methode werden die Daten empfangen, die dann gegebenfalls lokal 
 * gespeichert werden müssen.
+*/
 public class GameClient extends Client{
 	
 	public GameClient() {
@@ -19,10 +19,10 @@ public class GameClient extends Client{
 	
 	/**
 	 * Führt den Loginvorgang durch.
-	 * @param pUsername
+	 * @param pUsername, pPasswort
 	 */
-	public void login(String pUsername) {
-		
+	public void login(String pUsername, String pPasswort) {
+		System.out.println(pUsername + ":" + pPasswort);
 	}
 	
 	/**

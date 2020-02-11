@@ -1,4 +1,4 @@
-package projekt_schule.server;
+package server;
 
 /**
  * Die generische Klasse Queue<ContentType>

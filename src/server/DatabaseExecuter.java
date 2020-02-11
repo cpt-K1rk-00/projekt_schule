@@ -1,4 +1,4 @@
-package projekt_schule.server;
+package server;
 
 /**
  * Die Klasse dient als Schnittstelle zu der Klasse DatabaseConnectorMySQL und führt Vorgänge, wie den
