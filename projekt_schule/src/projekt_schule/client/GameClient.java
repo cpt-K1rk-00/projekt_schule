@@ -1,5 +1,10 @@
 package projekt_schule.client;
 
+
+/**
+* Die Klasse dient der Kommunikation zwischen dem Server und der GUI.
+* In der Process Message Methode werden die Daten empfangen, die dann gegebenfalls lokal 
+* gespeichert werden müssen.
 public class GameClient extends Client{
 	
 	public GameClient() {
