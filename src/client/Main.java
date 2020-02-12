@@ -162,14 +162,14 @@ public class Main extends Application{
 		registerButton.setMinWidth(x * 0.5);
 		registerButton.setStyle(cssStyle);
 		registerButton.setOnAction(new EventHandler<ActionEvent>() { 
-			public void handle(ActionEvent arg0) {
-				System.out.println(inputUsername.getText() + ":" + inputPassword.getText());
-				/**
-				 * Die Methode schickt eine Anfrage an den Server, ob der Name vergeben ist.
-				 * Ist der Namen vergeben, wird eine Mitteilung ausgegeben.
-				 * Ist der Name nicht vergeben, wird ein neuer Nutzer erstellt eingefügt und 
-				 * anschließend wird dieser eingelogt.
-				 */
+			public void handle(ActionEvent event) {
+				//Passwort und Username dürfen nicht leer sein
+				if(inputUsername.getText().equals("") || inputPassword.getText().equals("")) {
+					System.out.print(1);
+					showError("Username und Password dürfen nicht leer sein");
+				}else {
+					client.register(inputUsername.getText(), inputPassword.getText());
+				}
 			}
 		});
 		Button backButton = new Button("back");

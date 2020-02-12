@@ -73,7 +73,14 @@ public class DatabaseExecuter {
 					return "Username bereits vergeben";
 				}
 				//Nutzernamen und Passwort eingeben
-				con.executeStatement("INSERT INTO users (user_id, username, password) VALUES (NULL, '" + pUsername + "','" + pPassword + "')");
+				//Not Lösung später ändern
+				con.executeStatement("SELECT user_id FROM users ORDER BY user_id DESC LIMIT 0,1");
+				if(con.getErrorMessage() != null) {
+					System.out.println("Fehler bei höchster ID");
+					return "Fehler beim Einfuegen des Users";
+				}
+				int id = Integer.parseInt(con.getCurrentQueryResult().getData()[0][0]) + 1; 
+				con.executeStatement("INSERT INTO users (user_id, username, password) VALUES (" + id + ",'" + pUsername + "','" + pPassword + "')");
 				con.close();
 				//Prüfen, ob es einen Fehler beim einfügen gab
 				if(con.getErrorMessage() != null) {

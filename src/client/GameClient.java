@@ -25,6 +25,7 @@ public class GameClient extends Client{
 	public void processMessage(String pMessage) {
 		//Nachricht einteilen
 		String[] msg = pMessage.split(":");
+		System.out.println(msg[1]);
 		//Login-Antwort
 		if(msg[0].equals("1")) {
 			System.out.println(1);
@@ -37,13 +38,28 @@ public class GameClient extends Client{
 				//Nachricht ausgeben
 				System.out.println(2);
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Anmeldedaten falsch");}});
+			//Wenn es einen Fehler gab
 			}else if(msg[1].equals("Fehler bei Anmeldung")) {
 				//Nachricht ausgeben
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Fehler bei Anmeldung");}});
 			}
 		//Registrierung-Antwort
 		}else if(msg[0].equals("2")) {
-			System.out.println("logindaten falsch");
+			System.out.println("In registrierung : ");
+			//Bei erfolgreicher Registrierung
+			if(msg[1].equals("Registrierung erfolgreich")) {
+				System.out.println("Registrierung erfolgreich");
+				//Login durchführen
+				login(msg[2],msg[3]);
+			//Wenn der Nutzername bereits vergeben ist
+			}else if(msg[1].equals("Nutzername bereits vergeben")) {
+				System.out.println("Username bereits vergeben");
+				Platform.runLater(new Runnable() {public void run() {gui.showError("Nutzername bereits vergeben");}});
+			//Wenn es einen Fehler gab
+			}else if(msg[1].equals("Fehler beim Einfuegen des Users")) {
+				System.out.println("Fehler beim Einfuegen des Users");
+				Platform.runLater(new Runnable() {public void run() {gui.showError("Fehler bei Registrierung");}});
+			}
 		//Freunde laden
 		}else if(msg[0].equals("3")) {
 			
@@ -64,7 +80,7 @@ public class GameClient extends Client{
 	 * @param pPasswort
 	 */
 	public void register(String pUsername, String pPasswort) {
-		
+		this.send("REGISTER:" + pUsername + ":" + pPasswort);
 	}
 	
 	/**
