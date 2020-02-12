@@ -5,6 +5,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -26,6 +28,8 @@ import javafx.stage.Stage;
  */
 
 public class Main extends Application{
+	
+	private GameClient client;
 	
 	private Scene aktScene; //Speichert die aktuell genutzte Scene
 	private Stage mainStage;
@@ -68,6 +72,7 @@ public class Main extends Application{
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		client = new GameClient(this);
 		//MainStage zuweisen
 		mainStage = primaryStage;
 		mainStage.setTitle("g&f");
@@ -102,7 +107,7 @@ public class Main extends Application{
 		loginButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				updateScene(setMainMenu());
+				updateScene(setLoginInput());
 			}
 		});
 		registerButton = new Button();
@@ -165,6 +170,56 @@ public class Main extends Application{
 				 * Ist der Name nicht vergeben, wird ein neuer Nutzer erstellt eingefügt und 
 				 * anschließend wird dieser eingelogt.
 				 */
+			}
+		});
+		Button backButton = new Button("back");
+		backButton.setMinWidth(x * 0.5);
+		backButton.setStyle(cssStyle);
+		backButton.setOnAction(new EventHandler<ActionEvent>() { 
+			public void handle(ActionEvent arg0) {
+				updateScene(setLoginScene());
+			}
+		});
+		VBox store = new VBox();
+		store.setAlignment(Pos.CENTER);
+		store.setSpacing(10);
+		store.getChildren().addAll(headline, storeUsername, storePassword, registerButton, backButton  );
+		store.setStyle("-fx-background-color:POWDERBLUE");
+		Scene scene = new Scene(store,x,y);
+		return scene;
+	}
+	
+	/**
+	 * Erzeugt die GUI, welche die Daten, die für eine Registrierug notwendig sind, einholt.
+	 */
+	public Scene setLoginInput() {
+		//Titel ändern
+		mainStage.setTitle("Login");
+		//Seite erzeugen
+		Label headline = new Label("Login");
+		headline.setFont(new Font("Cambria", 100));
+		Label username = new Label("username");
+		username.setFont(new Font("Cambria", 40));
+		inputUsername = new TextField();
+		inputUsername.setFont(new Font("Cambria", 25));
+		HBox storeUsername = new HBox();
+		storeUsername.setSpacing(5);
+		storeUsername.setAlignment(Pos.CENTER);
+		storeUsername.getChildren().addAll(username, inputUsername);
+		Label password = new Label("password");
+		password.setFont(new Font("Cambria", 40));
+		inputPassword = new TextField();
+		inputPassword.setFont(new Font("Cambria", 25));
+		HBox storePassword = new HBox();
+		storePassword.setSpacing(5);
+		storePassword.setAlignment(Pos.CENTER);
+		storePassword.getChildren().addAll(password, inputPassword);
+		registerButton = new Button("login");
+		registerButton.setMinWidth(x * 0.5);
+		registerButton.setStyle(cssStyle);
+		registerButton.setOnAction(new EventHandler<ActionEvent>() { 
+			public void handle(ActionEvent arg0) {
+				client.login(inputUsername.getText(), inputPassword.getText());
 			}
 		});
 		Button backButton = new Button("back");
@@ -388,6 +443,17 @@ public class Main extends Application{
 			result.append("asdf:1");
 		}
 		return result;
+	}
+	
+	/**
+	 * Macht Error-Message.
+	 * @param pMessage
+	 */
+	public void showError(String pMessage) {
+		Alert errorAlert = new Alert(AlertType.ERROR);
+		errorAlert.setHeaderText("Error");
+		errorAlert.setContentText(pMessage);
+		errorAlert.showAndWait();
 	}
 	
 	public static void main(String[] args) {

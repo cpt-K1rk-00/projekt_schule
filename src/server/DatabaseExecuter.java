@@ -23,14 +23,14 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * Die Methode gibt true zurück, wenn der Username und das Passwort existieren,
-	 * sonst wird false zurückgegeben.
-	 * Zuden wird das Attribut auf "1" also online gesetzt.
+	 * Die Methode gibt 1 zurück, wenn der Username und das Passwort existieren.
+	 * Die Methode gibt 0 zurück, wenn die Anmeldedaten falsch sind.
+	 * Die Methode gibt -1 zurück, wenn es einen anderen Fehler gab.	 * 
 	 * @param pUsername
 	 * @param pPassword
 	 * @return
 	 */
-	public boolean login(String pUsername, String pPassword) {
+	public int login(String pUsername, String pPassword) {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keinen Fehler gab
 		if(con != null) {
@@ -41,14 +41,15 @@ public class DatabaseExecuter {
 				QueryResult result = con.getCurrentQueryResult();
 				if(result.getRowCount() == 1) {
 					con.close();
-					return true;
+					return 1;
 				}
+				return 0;
 			}else {
 				System.out.println(con.getErrorMessage());
 				con.close();
 			}
 		}
-		return false;
+		return -1;
 	}
 	
 	/**
@@ -72,7 +73,7 @@ public class DatabaseExecuter {
 					return "Username bereits vergeben";
 				}
 				//Nutzernamen und Passwort eingeben
-				con.executeStatement("INSERT INTO users (user_id, username, password, online) VALUES (NULL, '" + pUsername + "','" + pPassword + "', 0)");
+				con.executeStatement("INSERT INTO users (user_id, username, password) VALUES (NULL, '" + pUsername + "','" + pPassword + "')");
 				con.close();
 				//Prüfen, ob es einen Fehler beim einfügen gab
 				if(con.getErrorMessage() != null) {
@@ -229,5 +230,10 @@ public class DatabaseExecuter {
 	public int[] getStats(String pUsername) {
 		//Später hinzufügen
 		return null;
+	}
+	
+	public static void main (String[] args) {
+		DatabaseExecuter ex = new DatabaseExecuter();
+		System.out.println(ex.login("killer123", "killer123"));
 	}
 }

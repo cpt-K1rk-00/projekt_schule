@@ -4,7 +4,6 @@ public class User {
 	
 	private String username;
 	private boolean online;
-	private List<User> friends;
 	
 	
 	public User(String pUsername, boolean pOnline) {
