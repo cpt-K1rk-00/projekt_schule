@@ -1,6 +1,8 @@
 package client;
 
 import javafx.application.Platform;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 
 /**
 * Die Klasse dient der Kommunikation zwischen dem Server und der GUI.
@@ -14,6 +16,7 @@ public class GameClient extends Client{
 	private List<User> user;;
 	private League league;
 	private Main gui;
+	private String username;
 	
 	public GameClient(Main gui) {
 		//später anpassen
@@ -33,6 +36,8 @@ public class GameClient extends Client{
 			if(msg[1].equals("Anmeldung erfolgreich")) {
 				//GUI updaten
 				Platform.runLater(new Runnable() {public void run() {gui.updateScene(gui.setMainMenu());}});
+				//Die Freundedaten laden
+				this.getFriends(msg[2]);
 			//Wenn die Anmeldedaten falsch sind
 			}else if(msg[1].equals("Anmeldedaten falsch")) {
 				//Nachricht ausgeben
@@ -62,7 +67,34 @@ public class GameClient extends Client{
 			}
 		//Freunde laden
 		}else if(msg[0].equals("3")) {
-			
+			System.out.println("in freunde anfordern");
+			if(msg[1].equals("Laden erfolgreich")) {
+				List<User> user = new List<User>();
+				//Die Freundesliste in der GUI aktualieren
+				for(int i = 2; i < msg.length; i++) {
+					System.out.println(msg[i]);
+					String[] tmp = msg[i].split(";");
+					if(tmp[1].equals("1")) {
+						user.append(new User(tmp[0], true));
+					}else {
+						user.append(new User(tmp[0], false));
+					}
+				}
+				//GUI aktualiseren
+				Platform.runLater(new Runnable() {
+					public void run() {
+						ScrollPane scroll = new ScrollPane(gui.getFriends(user));
+						scroll.setHbarPolicy(ScrollBarPolicy.NEVER);;
+						scroll.setMaxHeight(gui.getY() * 0.6);
+						scroll.setMinHeight(gui.getY() * 0.6);
+						scroll.setStyle("-fx-background:POWDERBLUE; -fx-background-color:transparent;");
+						scroll.setBorder(null);
+						gui.getRoot().setRight(scroll);
+					}
+				});
+			}else {
+				Platform.runLater(new Runnable(){public void run() { gui.showError("Freunde konnten nicht geladen werden");}});
+			}
 		}
 	}
 	
@@ -88,7 +120,7 @@ public class GameClient extends Client{
 	 * @param username
 	 */
 	public void getFriends(String pUsername) {
-		
+		this.send("GET_FRIENDS:" + pUsername);
 	}
 	
 	/**

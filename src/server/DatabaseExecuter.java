@@ -114,7 +114,6 @@ public class DatabaseExecuter {
 				for(int i = 0; i < result.getRowCount(); i++) {
 					names.append(result.getData()[i][0]);
 				}
-				con.close();
 				return names;
 			}else {
 				System.out.println(con.getErrorMessage());
@@ -241,6 +240,6 @@ public class DatabaseExecuter {
 	
 	public static void main (String[] args) {
 		DatabaseExecuter ex = new DatabaseExecuter();
-		System.out.println(ex.login("killer123", "killer123"));
+		System.out.println(ex.getFriends("killer123"));
 	}
 }

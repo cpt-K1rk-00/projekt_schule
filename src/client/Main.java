@@ -18,6 +18,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -44,6 +45,10 @@ public class Main extends Application{
 	private Button startRegistration;
 	private TextField inputUsername;
 	private TextField inputPassword;
+	
+	//main seite
+	private VBox friendBox;
+	private BorderPane root;
 	
 	private final String cssStyle = "-fx-background-color: \r\n" + 
 			"        linear-gradient(#ffd65b, #e68400),\r\n" + 
@@ -165,7 +170,7 @@ public class Main extends Application{
 			public void handle(ActionEvent event) {
 				//Passwort und Username dürfen nicht leer sein
 				if(inputUsername.getText().equals("") || inputPassword.getText().equals("")) {
-					System.out.print(1);
+
 					showError("Username und Password dürfen nicht leer sein");
 				}else {
 					client.register(inputUsername.getText(), inputPassword.getText());
@@ -219,7 +224,11 @@ public class Main extends Application{
 		registerButton.setStyle(cssStyle);
 		registerButton.setOnAction(new EventHandler<ActionEvent>() { 
 			public void handle(ActionEvent arg0) {
-				client.login(inputUsername.getText(), inputPassword.getText());
+				if(inputUsername.getText().equals("") || inputPassword.getText().equals("")) {
+					showError("Username und Password dürfen nicht leer sein");
+				}else {
+					client.login(inputUsername.getText(), inputPassword.getText());
+				}
 			}
 		});
 		Button backButton = new Button("back");
@@ -253,7 +262,7 @@ public class Main extends Application{
 		//Titel aktualisieren
 		mainStage.setTitle("games & friends");
 		//BorderPane einrichten
-		BorderPane root = new BorderPane();
+		root = new BorderPane();
 		//Überschrift erzeugen
 		HBox headlineStore = new HBox();
 		headlineStore.setAlignment(Pos.CENTER);
@@ -271,7 +280,7 @@ public class Main extends Application{
 		headlineFriends.setAlignment(Pos.CENTER);
 		headlineStore.getChildren().addAll(headlineLeague, headlineFriends);
 		//Buttons für Freund erzeugen
-		VBox buttonsFriends = getFriends();
+		VBox buttonsFriends = getFriends(null);
 		ScrollPane scroll = new ScrollPane(buttonsFriends);
 		scroll.setHbarPolicy(ScrollBarPolicy.NEVER);;
 		scroll.setMaxHeight(y * 0.6);
@@ -335,10 +344,17 @@ public class Main extends Application{
 	 * 
 	 * @return
 	 */
-	public VBox getFriends() {
-		VBox friendBox = new VBox();
-		//Liste mit Usern einholen
-		List<User> friends = getFriendsNames();
+	public VBox getFriends(List<User> friends) {
+		friendBox = new VBox();
+		//Am anfang auf null setzen
+		if(friends == null) {
+			Label msg = new Label("Freunde nicht \n geladen");
+			msg.setTextAlignment(TextAlignment.CENTER);
+			msg.setFont(new Font("Cambria", 30));
+			msg.setStyle("-fx-background-color:POWDERBLUE");
+			friendBox.getChildren().add(msg);
+			return friendBox;
+		}
 		friends.toFirst();
 		//Für jeden Freund einen Button erzeugen
 		while(friends.hasAccess()) {
@@ -360,6 +376,10 @@ public class Main extends Application{
 			friends.next();
 		}
 		return friendBox;
+	}
+	
+	public void setFriendBox(VBox friendBox) {
+		this.friendBox = friendBox;
 	}
 	
 	/**
@@ -407,8 +427,17 @@ public class Main extends Application{
 		return table;
 	}
 	
-
+	public int getX() {
+		return this.x;
+	}
 	
+	public int getY() {
+		return this.y;
+	}
+	
+	public BorderPane getRoot() {
+		return this.root;
+	}
 	//Hilsmethoden, die eine Datenbankabfrage darstellen
 	
 	

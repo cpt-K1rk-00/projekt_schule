@@ -43,7 +43,7 @@ public class GameServer extends Server{
 				//Zu online-Liste zufügen
 				System.out.println(new Integer(res).toString());
 				onlineUser.append(new User(msg[1], true));
-				this.send(pClientIP, pClientPort, "1:Anmeldung erfolgreich");
+				this.send(pClientIP, pClientPort, "1:Anmeldung erfolgreich:" + msg[1]);
 			//Anmeldedaten falsch
 			}else if(res == 0) {
 				System.out.println(new Integer(res).toString());
@@ -60,19 +60,70 @@ public class GameServer extends Server{
 			String res = db.register(msg[1], msg[2]);
 			System.out.println(res);
 			//Wenn die Registrierung erfolgreich war
-			if(res.equals("Username eingefügt")) {
-				System.out.println(res);
+			if(res.equals("Username eingefuegt")) {
 				this.send(pClientIP, pClientPort, "2:Registrierung erfolgreich:" + msg[1] + ":" + msg[2]);
 			//Wenn der Nutzername vergeben ist
-			}else if(res.equals("Username eingefuegt")) {
-				System.out.println(res);
+			}else if(res.equals("Username bereits vergeben")) {
 				this.send(pClientIP, pClientPort, "2:Nutzername bereits vergeben");
 			//Wenn es einen Fehler gibt
 			}else if(res.equals("Fehler beim Einfuegen des Users")) {
-				System.out.println(res);
 				this.send(pClientIP, pClientPort, "2:Fehler bei Registrierung");
 			}
+		//Für Anforderung der Freunde
+		}else if(msg[0].equals("GET_FRIENDS")) {
+			System.out.println("get friends");
+			List<String> names = db.getFriends(msg[1]);
+			System.out.println(names);
+			//Wenn es einen Fehler gab
+			if(names == null) {
+				this.send(pClientIP, pClientPort, "3:Fehler beim Laden der Datei");
+			//Wenn es keinen Fehler gab
+			}else {
+				//Prüfen, ob User online ist
+				String result = "";
+				names.toFirst();
+				List<String> sortedList = new List<String>();
+				while(names.hasAccess()) {
+					if(userOnline(names.getContent())) {
+						sortedList.toFirst();
+						sortedList.insert(names.getContent()+ ";1");
+					}else {
+						sortedList.append(names.getContent() + ";0");
+					}
+					names.next();
+				}
+				sortedList.toFirst();
+				while(sortedList.hasAccess()) {
+					result += ":" + sortedList.getContent();
+					sortedList.next();
+				}
+				this.send(pClientIP, pClientPort, "3:Laden erfolgreich" + result);
+			
+			}
+		//Freund hinzufügen
+		}else if(msg[0].equals("ADD_FRIEND")) {
+			
 		}
+	}
+	
+	/**
+	 * Prüft, ob der Name des Spielers in der Liste mit den 
+	 * Spielern, die online sind, enthalten ist. Ist dies der
+	 * Fall, dann wird true zurückgegeben. Sonst wird false
+	 * zurückgegeben.
+	 * @param pName
+	 * @return
+	 */
+	public boolean userOnline(String pName) {
+		onlineUser.toFirst();
+		while(onlineUser.hasAccess()) {
+			//Wenn der User online ist
+			if(onlineUser.getContent().getUsername().equals(pName)) {
+				return true;
+			}
+			onlineUser.next();
+		}
+		return false;
 	}
 
 	@Override
@@ -86,9 +137,7 @@ public class GameServer extends Server{
 	
 	public static void main (String[] args) {
 		GameServer server = new GameServer(9999);
-		for(;;) {
-			
-		}
+		for(;;) {}
 	}
 
 }
