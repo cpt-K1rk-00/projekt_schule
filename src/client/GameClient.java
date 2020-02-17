@@ -38,6 +38,7 @@ public class GameClient extends Client{
 				Platform.runLater(new Runnable() {public void run() {gui.updateScene(gui.setMainMenu());}});
 				//Die Freundedaten laden
 				this.getFriends(msg[2]);
+				this.loadLeague(msg[2]);
 			//Wenn die Anmeldedaten falsch sind
 			}else if(msg[1].equals("Anmeldedaten falsch")) {
 				//Nachricht ausgeben
@@ -94,6 +95,20 @@ public class GameClient extends Client{
 				});
 			}else {
 				Platform.runLater(new Runnable(){public void run() { gui.showError("Freunde konnten nicht geladen werden");}});
+			}
+		//Ligamitglieder lagen
+		}else if(msg[0].equals("4")){
+			System.out.println("in liga anfordern");
+			//wenn es keine Fehler gab
+			if(msg[1].equals("Laden erfolgreich")) {
+				//Prüfen, ob er einer Liga beigetreten ist
+				if(msg[2].equals("keine Liga")) {
+					Platform.runLater(new Runnable() {
+						public void run() {
+							gui.getHeadlineLeague().setText("keine Liga");
+						}
+					});
+				}
 			}
 		}
 	}
@@ -186,17 +201,8 @@ public class GameClient extends Client{
 	 * Mitgliedern einer Liga.
 	 * @param pLeagueName
 	 */
-	public void loadLeague(String pLeagueName) {
-		
-	}
-	
-	/**
-	 * Stellt eine Anfrage auf den Namen der Liga,
-	 * in der User ist.
-	 * @param pUsername
-	 */
-	public void getLeagueName(String pUsername) {
-		
+	public void loadLeague(String pUsername) {
+		this.send("LOAD_LEAGUE:" + pUsername);
 	}
 
 	public boolean isLogin() {

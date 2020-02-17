@@ -49,6 +49,7 @@ public class Main extends Application{
 	//main seite
 	private VBox friendBox;
 	private BorderPane root;
+	private Label headlineLeague;
 	
 	private final String cssStyle = "-fx-background-color: \r\n" + 
 			"        linear-gradient(#ffd65b, #e68400),\r\n" + 
@@ -267,7 +268,7 @@ public class Main extends Application{
 		HBox headlineStore = new HBox();
 		headlineStore.setAlignment(Pos.CENTER);
 		headlineStore.setSpacing(110);
-		Label headlineLeague = new Label("League:");
+		headlineLeague = new Label("League:");
 		headlineLeague.setFont(new Font("Cambria", 50));
 		headlineLeague.setMinHeight(y * 0.2);
 		headlineLeague.setMaxHeight(y * 0.2);
@@ -320,15 +321,13 @@ public class Main extends Application{
         buttonsStore.setPadding(new Insets(y * 0.06, (x*0.3-btn.getWidth())*0.25, 20, 0));
 		//Der Wurzel hinzufügen
 		root.setTop(headlineStore);
-		ScrollPane leagueView = new ScrollPane(createLeagueView());
+		ScrollPane leagueView = new ScrollPane(null);
 		leagueView.setMinHeight(y * 0.6);
 		leagueView.setMaxHeight(y * 0.6);
 		leagueView.setHbarPolicy(ScrollBarPolicy.NEVER);
 		leagueView.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		leagueView.setStyle("-fx-background:POWDERBLUE; -fx-background-color:transparent;");
 		leagueView.setBorder(null);
-		VBox tmp2 = (VBox) leagueView.getContent();
-		System.out.println(tmp2.getChildren().size());
 		root.setCenter(leagueView);
 		root.setRight(scroll);
 		root.setBottom(buttonsStore);
@@ -437,6 +436,10 @@ public class Main extends Application{
 	
 	public BorderPane getRoot() {
 		return this.root;
+	}
+	
+	public Label getHeadlineLeague() {
+		return this.headlineLeague;
 	}
 	//Hilsmethoden, die eine Datenbankabfrage darstellen
 	

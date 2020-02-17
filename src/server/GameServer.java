@@ -103,6 +103,47 @@ public class GameServer extends Server{
 		//Freund hinzufügen
 		}else if(msg[0].equals("ADD_FRIEND")) {
 			
+		//Mitglieder der Liga laden
+		}else if(msg[0].equals("LOAD_LEAGUE")) {
+			System.out.println("Ligamitglieder laden");
+			//Username laden
+			String leagueName = db.getLeagueNameFromUsername(msg[1]);
+			//Wenn es einen Namen gibt
+			if(leagueName != null) {
+				if(leagueName.equals("keine Liga")) {
+					this.send(pClientIP, pClientPort, "4:Laden erfolreich" + leagueName);
+				}else {
+					List<String> names = db.getMembers(leagueName);
+					//Wenn es keine Fehler gab
+					if(names != null) {
+						//Prüfen, ob die User online sind
+						String result = "";
+						names.toFirst();
+						List<String> sortedList = new List<String>();
+						while(names.hasAccess()) {
+							if(userOnline(names.getContent())) {
+								sortedList.toFirst();
+								sortedList.insert(names.getContent()+ ";1");
+							}else {
+								sortedList.append(names.getContent() + ";0");
+							}
+							names.next();
+						}
+						sortedList.toFirst();
+						while(sortedList.hasAccess()) {
+							result += ":" + sortedList.getContent();
+							sortedList.next();
+						}
+						this.send(pClientIP, pClientPort, "4:Laden erfolgreich" + result);
+					}else {
+						//Fehlermeldung zurückgeben
+						this.send(pClientIP, pClientPort, "4:Fehler beim Laden der Mitglieder");
+					}
+				}
+			}else {
+				//Fehlermeldung zurückgeben
+				this.send(pClientIP, pClientPort, "4:Username nicht erkannt");
+			}
 		}
 	}
 	
@@ -132,6 +173,13 @@ public class GameServer extends Server{
 	 */
 	public void processClosingConnection(String pClientIP, int pClientPort) {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * Ändert die Liga-Headline.
+	 */
+	public void changeLeagueHeadline() {
 		
 	}
 	

@@ -227,6 +227,27 @@ public class DatabaseExecuter {
 	}
 	
 	/**
+	 * Gibt die Liga zu einen Username zurück.
+	 * Kombination aus verschiedenen Methoden.
+	 * @param pUsername
+	 * @return
+	 */
+	public String getLeagueNameFromUsername(String pUsername){
+		DatabaseConnectorMySQL con = getCon();
+		//Wenn es keine Fehlermeldung gibt
+		if(con.getErrorMessage() == null) {
+			//Gibt den Namen der Liga in der User spielt zurück
+			con.executeStatement("SELECT ligen.name FROM ligen, users WHERE ligen.liga_id = users.liga_id AND users.username = '" + pUsername + "'");
+			//Wenn es keine Fehlermeldung gab
+			if(con.getErrorMessage() == null) {
+				//Den Liganamen zurückgeben
+				return con.getCurrentQueryResult().getData()[0][0];
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Gibt ein Array mit den Siegen, Niederlagen und Unentschieden zurück.
 	 * Existiert der Username nicht, wird null zurück gegeben.
 	 * (Evlt. als Diagramm darstellen)
