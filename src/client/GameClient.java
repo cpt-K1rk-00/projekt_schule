@@ -1,6 +1,7 @@
 package client;
 
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 
@@ -105,7 +106,9 @@ public class GameClient extends Client{
 				if(msg[2].equals("keine Liga")) {
 					Platform.runLater(new Runnable() {
 						public void run() {
-							gui.getHeadlineLeague().setText("keine Liga");
+							Label headline = gui.getHeadlineLeague();
+							headline.setText("keine Liga");
+							gui.getRoot().get
 						}
 					});
 				}
