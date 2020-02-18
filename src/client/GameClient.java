@@ -1,9 +1,16 @@
 package client;
 
+import com.sun.org.apache.bcel.internal.classfile.Node;
+
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 
 /**
 * Die Klasse dient der Kommunikation zwischen dem Server und der GUI.
@@ -32,7 +39,6 @@ public class GameClient extends Client{
 		System.out.println(msg[1]);
 		//Login-Antwort
 		if(msg[0].equals("1")) {
-			System.out.println(1);
 			//Wenn der Login erfolgreich ist
 			if(msg[1].equals("Anmeldung erfolgreich")) {
 				//GUI updaten
@@ -100,20 +106,50 @@ public class GameClient extends Client{
 		//Ligamitglieder lagen
 		}else if(msg[0].equals("4")){
 			System.out.println("in liga anfordern");
+			System.out.println("msg:" + msg[1]);
 			//wenn es keine Fehler gab
 			if(msg[1].equals("Laden erfolgreich")) {
+				System.out.println(0);
 				//Prüfen, ob er einer Liga beigetreten ist
 				if(msg[2].equals("keine Liga")) {
-					Platform.runLater(new Runnable() {
-						public void run() {
-							Label headline = gui.getHeadlineLeague();
-							headline.setText("keine Liga");
-							gui.getRoot().get
-						}
-					});
+					System.out.println(1);
+					changeHeadline("keine Liga");
+				//Wenn der User in einer Liga spielt
+				}else {
+					System.out.println(2);
+					changeHeadline(msg[2]);
+					//Ligadaten in Liste speichern
+					List<String> result = new List<String>();
+					for(int i = 2; i < msg.length; i++) {
+						System.out.println(msg[i]);
+						result.append(msg[i]);
+					}
+					VBox leagueView = gui.createLeagueView(result);
+					//GUI aktualiseren
+					Platform.runLater(new Runnable() {public void run() {gui.getRoot().setCenter(leagueView);}});
 				}
 			}
 		}
+	}
+	
+	public void changeHeadline(String headline) {
+		Platform.runLater(new Runnable() {
+			public void run() {
+				Label headlineLabel = new Label(headline);
+				headlineLabel.setFont(new Font("Cambria", 50));
+				headlineLabel.setMinHeight(gui.getY() * 0.2);
+				headlineLabel.setMaxHeight(gui.getY() * 0.2);
+				headlineLabel.setMinWidth(gui.getX() * 0.7);
+				headlineLabel.setMaxWidth(gui.getX() * 0.7);
+				GridPane pane = new GridPane();
+				pane = new GridPane();
+				pane.setAlignment(Pos.CENTER);
+				pane.add(headlineLabel, 0, 0);
+				pane.add(gui.getHeadlineFriends(), 1, 0);
+				gui.getRoot().setTop(pane);
+			}
+				
+		});
 	}
 	
 	/**

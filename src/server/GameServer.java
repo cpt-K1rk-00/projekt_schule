@@ -111,7 +111,7 @@ public class GameServer extends Server{
 			//Wenn es einen Namen gibt
 			if(leagueName != null) {
 				if(leagueName.equals("keine Liga")) {
-					this.send(pClientIP, pClientPort, "4:Laden erfolreich" + leagueName);
+					this.send(pClientIP, pClientPort, "4:Laden erfolgreich:" + leagueName);
 				}else {
 					List<String> names = db.getMembers(leagueName);
 					//Wenn es keine Fehler gab
@@ -134,7 +134,7 @@ public class GameServer extends Server{
 							result += ":" + sortedList.getContent();
 							sortedList.next();
 						}
-						this.send(pClientIP, pClientPort, "4:Laden erfolgreich" + result);
+						this.send(pClientIP, pClientPort, "4:Laden erfolgreich:" + leagueName + result);
 					}else {
 						//Fehlermeldung zurückgeben
 						this.send(pClientIP, pClientPort, "4:Fehler beim Laden der Mitglieder");

@@ -13,6 +13,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -50,6 +51,8 @@ public class Main extends Application{
 	private VBox friendBox;
 	private BorderPane root;
 	private Label headlineLeague;
+	private GridPane headlineStore;
+	private Label headlineFriends; 
 	
 	private final String cssStyle = "-fx-background-color: \r\n" + 
 			"        linear-gradient(#ffd65b, #e68400),\r\n" + 
@@ -265,21 +268,21 @@ public class Main extends Application{
 		//BorderPane einrichten
 		root = new BorderPane();
 		//Überschrift erzeugen
-		HBox headlineStore = new HBox();
+		headlineStore = new GridPane();
 		headlineStore.setAlignment(Pos.CENTER);
-		headlineStore.setSpacing(110);
-		headlineLeague = new Label("League:");
+		headlineLeague = new Label("Loading ..");
 		headlineLeague.setFont(new Font("Cambria", 50));
 		headlineLeague.setMinHeight(y * 0.2);
 		headlineLeague.setMaxHeight(y * 0.2);
-		headlineLeague.setMinWidth(y * 0.7);
-		headlineLeague.setMaxWidth(y * 0.7);
-		Label headlineFriends = new Label("Friends");
+		headlineLeague.setMinWidth(x * 0.7);
+		headlineLeague.setMaxWidth(x * 0.7);
+		headlineFriends = new Label("Friends");
 		headlineFriends.setMinHeight(y * 0.2);
 		headlineFriends.setMaxHeight(y * 0.2);
 		headlineFriends.setFont(new Font("Cambria", 50));
 		headlineFriends.setAlignment(Pos.CENTER);
-		headlineStore.getChildren().addAll(headlineLeague, headlineFriends);
+		headlineStore.add(headlineLeague, 0, 0);
+		headlineStore.add(headlineFriends, 1, 0);
 		//Buttons für Freund erzeugen
 		VBox buttonsFriends = getFriends(null);
 		ScrollPane scroll = new ScrollPane(buttonsFriends);
@@ -387,15 +390,13 @@ public class Main extends Application{
 	 * und können herausgefordert werden.
 	 * @return
 	 */
-	public VBox createLeagueView() {
+	public VBox createLeagueView(List<String> data) {
 		//Erstellt die VBox in der die Liga-Tabelle gezeigt wird
 		VBox table = new VBox();
-		//Die Ligadaten laden (eigl. vom Server)
-		List<String> data = getLeagueData();
 		data.toFirst();
 		int index = 1;
 		while(data.hasAccess()) {
-			String[] inf = data.getContent().split(":");
+			String[] inf = data.getContent().split(";");
 			//Die Datenspeichern
 			HBox row = new HBox();
 			row.setMinHeight(y * 0.05);
@@ -406,7 +407,7 @@ public class Main extends Application{
 			place.setStyle("-fx-background-color:POWDERBLUE");
 			Button btn = new Button(inf[0]);
 			btn.setMinWidth(x * 0.5);
-			if(index < 10) {
+			if(inf[2].equals("1")) {
 				btn.setStyle(cssFriendGreen);
 			}else {
 				btn.setStyle(cssFriendRed);
@@ -441,6 +442,19 @@ public class Main extends Application{
 	public Label getHeadlineLeague() {
 		return this.headlineLeague;
 	}
+	
+	public GridPane getHeadlineStore() {
+		return this.headlineStore;
+	}
+	
+	public void setHeadlineLeague(Label label) {
+		this.headlineLeague = label;
+	}
+	
+	public Label getHeadlineFriends() {
+		return this.headlineFriends;
+	}
+	
 	//Hilsmethoden, die eine Datenbankabfrage darstellen
 	
 	

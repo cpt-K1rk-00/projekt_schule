@@ -214,7 +214,7 @@ public class DatabaseExecuter {
 			if(con.getErrorMessage() == null) {
 				QueryResult result = con.getCurrentQueryResult();
 				for(int i = 0; i < result.getRowCount(); i++){
-					names.append(result.getData()[i][0] + ":" + result.getData()[i][1]);
+					names.append(result.getData()[i][0] + ";" + result.getData()[i][1]);
 				}
 				con.close();
 				return names;
