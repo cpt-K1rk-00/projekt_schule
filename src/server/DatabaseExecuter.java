@@ -248,6 +248,24 @@ public class DatabaseExecuter {
 	}
 	
 	/**
+	 * Verlässt eine Liga, in der sich der User befindet.
+	 * Gibt den Namen der Liga zurück, damit deren Ansicht aktualisiert werden
+	 * kann.
+	 * @param pUsername
+	 */
+	public String leaveLeague(String pUsername) {
+		DatabaseConnectorMySQL con = getCon();
+		//Wenn es keine Fehlermeldung gab
+		String leagueName = getLeagueNameFromUsername(pUsername);
+		con.executeStatement("UPDATE users SET liga_id= 0,liga_punkte WHERE users.username = '" + pUsername + "'");
+		if(con.getErrorMessage() == null) {
+			//Erfolg zurückgeben
+			return leagueName;
+		}
+		return null;
+	}
+	
+	/**
 	 * Gibt ein Array mit den Siegen, Niederlagen und Unentschieden zurück.
 	 * Existiert der Username nicht, wird null zurück gegeben.
 	 * (Evlt. als Diagramm darstellen)

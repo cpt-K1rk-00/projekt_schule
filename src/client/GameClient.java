@@ -1,6 +1,7 @@
 package client;
 
 import com.sun.org.apache.bcel.internal.classfile.Node;
+import com.sun.org.apache.bcel.internal.generic.GETFIELD;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -30,6 +31,7 @@ public class GameClient extends Client{
 		//später anpassen
 		super("localhost", 9999);
 		this.gui = gui;
+		this.login = false;
 	}
 
 	@Override
@@ -44,12 +46,13 @@ public class GameClient extends Client{
 				//GUI updaten
 				Platform.runLater(new Runnable() {public void run() {gui.updateScene(gui.setMainMenu());}});
 				//Die Freundedaten laden
+				this.username = msg[2];
 				this.getFriends(msg[2]);
 				this.loadLeague(msg[2]);
+				this.login = true;
 			//Wenn die Anmeldedaten falsch sind
 			}else if(msg[1].equals("Anmeldedaten falsch")) {
 				//Nachricht ausgeben
-				System.out.println(2);
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Anmeldedaten falsch");}});
 			//Wenn es einen Fehler gab
 			}else if(msg[1].equals("Fehler bei Anmeldung")) {
@@ -58,19 +61,15 @@ public class GameClient extends Client{
 			}
 		//Registrierung-Antwort
 		}else if(msg[0].equals("2")) {
-			System.out.println("In registrierung : ");
 			//Bei erfolgreicher Registrierung
 			if(msg[1].equals("Registrierung erfolgreich")) {
-				System.out.println("Registrierung erfolgreich");
 				//Login durchführen
 				login(msg[2],msg[3]);
 			//Wenn der Nutzername bereits vergeben ist
 			}else if(msg[1].equals("Nutzername bereits vergeben")) {
-				System.out.println("Username bereits vergeben");
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Nutzername bereits vergeben");}});
 			//Wenn es einen Fehler gab
 			}else if(msg[1].equals("Fehler beim Einfuegen des Users")) {
-				System.out.println("Fehler beim Einfuegen des Users");
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Fehler bei Registrierung");}});
 			}
 		//Freunde laden
@@ -80,7 +79,7 @@ public class GameClient extends Client{
 				List<User> user = new List<User>();
 				//Die Freundesliste in der GUI aktualieren
 				for(int i = 2; i < msg.length; i++) {
-					System.out.println(msg[i]);
+
 					String[] tmp = msg[i].split(";");
 					if(tmp[1].equals("1")) {
 						user.append(new User(tmp[0], true));
@@ -100,6 +99,11 @@ public class GameClient extends Client{
 						gui.getRoot().setRight(scroll);
 					}
 				});
+			}else if(msg[1].equals("fordere Freunde")) {
+				//Wenn der User online ist
+				if(login) {
+					getFriends(this.username);
+				}
 			}else {
 				Platform.runLater(new Runnable(){public void run() { gui.showError("Freunde konnten nicht geladen werden");}});
 			}
@@ -112,22 +116,37 @@ public class GameClient extends Client{
 				System.out.println(0);
 				//Prüfen, ob er einer Liga beigetreten ist
 				if(msg[2].equals("keine Liga")) {
-					System.out.println(1);
 					changeHeadline("keine Liga");
 				//Wenn der User in einer Liga spielt
 				}else {
-					System.out.println(2);
 					changeHeadline(msg[2]);
 					//Ligadaten in Liste speichern
 					List<String> result = new List<String>();
-					for(int i = 2; i < msg.length; i++) {
-						System.out.println(msg[i]);
+					for(int i = 3; i < msg.length; i++) {
 						result.append(msg[i]);
 					}
 					VBox leagueView = gui.createLeagueView(result);
 					//GUI aktualiseren
 					Platform.runLater(new Runnable() {public void run() {gui.getRoot().setCenter(leagueView);}});
 				}
+			}else if(msg[1].equals("Lade Liga")) {
+				//Wenn bereits eingelogt
+				if(login) {
+					this.loadLeague(this.username);
+				}
+			}
+		}else if(msg[0].equals("8")) {
+			System.out.println("in Liga verlassen");
+			if(msg[1].equals("Fehler beim Verlassen der Liga")) {
+				Platform.runLater(new Runnable() {public void run() {gui.showError("Fehler beim Verlassen der Liga");}});
+			//Liga neu Laden
+			}else if(msg[1].equals("Lade Liga")) {
+				System.out.println("in liga verlassen");
+				this.loadLeague(this.username);
+			//GUI aktualisieren
+			}else {
+				changeHeadline("keine Liga");
+				Platform.runLater(new Runnable() {public void run() {gui.getRoot().setCenter(null);}});
 			}
 		}
 	}
@@ -157,6 +176,7 @@ public class GameClient extends Client{
 	 * @param pUsername, pPasswort
 	 */
 	public void login(String pUsername, String pPasswort) {
+		this.username = pUsername;
 		this.send("LOGIN:" + pUsername + ":" + pPasswort);
 	}
 	
@@ -215,8 +235,8 @@ public class GameClient extends Client{
 	 * Verlässt die Liga
 	 * @param pUsername
 	 */
-	public void leaveLeague(String pUsername) {
-		
+	public void leaveLeague() {
+		this.send("LEAVE_LEAGUE:" + this.username);
 	}
 	
 	/**

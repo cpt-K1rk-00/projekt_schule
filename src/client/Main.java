@@ -308,6 +308,12 @@ public class Main extends Application{
 		manageLeague.setMinHeight(y * 0.1);
 		manageLeague.setMaxHeight(y * 0.1);
 		manageLeague.setStyle(cssStyle);
+		manageLeague.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				System.out.println("leave League");
+				client.leaveLeague();
+			}
+		});
 		Region buttonsRegion1 = new Region();
         HBox.setHgrow(buttonsRegion1, Priority.ALWAYS);
         Region buttonsRegion2 = new Region();
@@ -397,6 +403,8 @@ public class Main extends Application{
 		int index = 1;
 		while(data.hasAccess()) {
 			String[] inf = data.getContent().split(";");
+			System.out.print(inf[0]);
+			System.out.println();
 			//Die Datenspeichern
 			HBox row = new HBox();
 			row.setMinHeight(y * 0.05);

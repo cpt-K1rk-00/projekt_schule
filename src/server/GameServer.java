@@ -33,6 +33,7 @@ public class GameServer extends Server{
 	 */
 	public void processMessage(String pClientIP, int pClientPort, String pMessage) {
 		System.out.println("msg:" + pMessage);
+		
 		String[] msg = pMessage.split(":");
 		//Für Login Vorgang
 		if(msg[0].equals("LOGIN")) {
@@ -41,16 +42,16 @@ public class GameServer extends Server{
 			//Login-erfolgreich
 			if(res == 1) {
 				//Zu online-Liste zufügen
-				System.out.println(new Integer(res).toString());
-				onlineUser.append(new User(msg[1], true));
+				onlineUser.append(new User(msg[1], true, pClientIP, pClientPort));
 				this.send(pClientIP, pClientPort, "1:Anmeldung erfolgreich:" + msg[1]);
+				//alle Ligamitglieder und Freunde auffordern neu zu laden
+				this.askForFriends(msg);
+				this.askForMembers(msg);
 			//Anmeldedaten falsch
 			}else if(res == 0) {
-				System.out.println(new Integer(res).toString());
 				this.send(pClientIP, pClientPort, "1:Anmeldedaten falsch");
 			//Anderer Fehler
 			}else if(res == -1) {
-				System.out.println(new Integer(res).toString());
 				this.send(pClientIP, pClientPort, "1:Fehler bei Anmeldung");
 			}
 		//Für Registrierungs Vorgang
@@ -58,7 +59,6 @@ public class GameServer extends Server{
 			System.out.println("in registrierugn");
 			//Registrierung prüfen
 			String res = db.register(msg[1], msg[2]);
-			System.out.println(res);
 			//Wenn die Registrierung erfolgreich war
 			if(res.equals("Username eingefuegt")) {
 				this.send(pClientIP, pClientPort, "2:Registrierung erfolgreich:" + msg[1] + ":" + msg[2]);
@@ -121,7 +121,7 @@ public class GameServer extends Server{
 						names.toFirst();
 						List<String> sortedList = new List<String>();
 						while(names.hasAccess()) {
-							if(userOnline(names.getContent())) {
+							if(userOnline(names.getContent().split(";")[0])) {
 								sortedList.toFirst();
 								sortedList.insert(names.getContent()+ ";1");
 							}else {
@@ -140,10 +140,29 @@ public class GameServer extends Server{
 						this.send(pClientIP, pClientPort, "4:Fehler beim Laden der Mitglieder");
 					}
 				}
-			}else {
-				//Fehlermeldung zurückgeben
-				this.send(pClientIP, pClientPort, "4:Username nicht erkannt");
 			}
+		}else if(msg[0].equals("LEAVE_LEAGUE")) {
+			//Die Verbindung aufstellen
+			String leagueName = db.leaveLeague(msg[1]);
+			if(leagueName == null) {
+				this.send(pClientIP, pClientPort, "8:Liga verlassen");
+				//Alle Mitglieder der Liga aktualisieren
+				onlineUser.toFirst();
+				while(onlineUser.hasAccess()) {
+					//Prüfen, ob sie in der gleichen Liga spielen
+					if(db.getLeagueNameFromUsername(onlineUser.getContent().getUsername()).equals(leagueName)){
+						//User auffordern Liga zu laden
+						this.send(pClientIP, pClientPort, "8:Lade Liga");
+					}
+					onlineUser.next();
+				}
+			}else {
+				this.send(pClientIP, pClientPort, "8:Fehler beim Verlassen der Liga");
+			}
+		}else {
+			//Fehlermeldung zurückgeben
+			this.send(pClientIP, pClientPort, "4:Username nicht erkannt");
+			
 		}
 	}
 	
@@ -165,6 +184,49 @@ public class GameServer extends Server{
 			onlineUser.next();
 		}
 		return false;
+	}
+	
+	public void askForFriends(String[] msg) {
+		List<String> allUsers = db.getFriends(msg[1]);
+		allUsers.toFirst();
+		while(allUsers.hasAccess()) {
+			if(userOnline(allUsers.getContent())) {
+				User aktUser = getOnlineUser(allUsers.getContent());
+				//Aufforderung schicken
+				this.send(aktUser.getIp(), aktUser.getPort(), "3:fordere Freunde");
+			}
+			allUsers.next();
+		}
+	}
+	
+	public void askForMembers(String[] msg) {
+		List<String> allUsers = db.getMembers(db.getLeagueNameFromUsername(msg[1]));
+		allUsers.toFirst();
+		while(allUsers.hasAccess()) {
+			if(userOnline(allUsers.getContent())){
+				User aktUser = getOnlineUser(allUsers.getContent());
+				//Aufforderung schicken
+				this.send(aktUser.getIp(), aktUser.getPort(), "4:Lade Liga");
+			}
+			allUsers.next();
+		}
+	}
+	
+	/**
+	 * Gibt das passende Userobjekt zu einem Usernamen zurück.
+	 * Ist der User nicht online wird null zurückgegeben.
+	 * @param pUsername
+	 * @return
+	 */
+	public User getOnlineUser(String pUsername) {
+		this.onlineUser.toFirst();
+		while(this.onlineUser.hasAccess()) {
+			if(this.onlineUser.getContent().getUsername().equals(pUsername)) {
+				return this.onlineUser.getContent();
+			}
+			this.onlineUser.next();
+		}
+		return null;
 	}
 
 	@Override
