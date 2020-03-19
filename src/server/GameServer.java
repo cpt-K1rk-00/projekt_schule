@@ -8,13 +8,15 @@ import java.io.PrintWriter;
 
 public class GameServer extends Server{
 	
-	private List<User> onlineUser;
+	private List<Player> onlinePlayers;
+	private List<Player> waitingPlayers;
+	private List<Game> runningGames;
 	private DatabaseExecuter db;
 
 	public GameServer(int pPort) {
 		super(pPort);
 		//Liste für User die online sind initialisieren
-		onlineUser = new List<User>();
+		onlinePlayers = new List<Player>();
 		db = new DatabaseExecuter();
 		System.out.println("start");
 	}
@@ -42,7 +44,7 @@ public class GameServer extends Server{
 			if(res == 1) {
 				//Zu online-Liste zufügen
 				System.out.println(new Integer(res).toString());
-				onlineUser.append(new User(msg[1], true));
+				onlinePlayers.append(new Player(msg[1], pClientIP+":"+pClientPort));
 				this.send(pClientIP, pClientPort, "1:Anmeldung erfolgreich:" + msg[1]);
 			//Anmeldedaten falsch
 			}else if(res == 0) {
@@ -84,7 +86,7 @@ public class GameServer extends Server{
 				names.toFirst();
 				List<String> sortedList = new List<String>();
 				while(names.hasAccess()) {
-					if(userOnline(names.getContent())) {
+					if(isPlayerOnline(names.getContent())) {
 						sortedList.toFirst();
 						sortedList.insert(names.getContent()+ ";1");
 					}else {
@@ -121,7 +123,7 @@ public class GameServer extends Server{
 						names.toFirst();
 						List<String> sortedList = new List<String>();
 						while(names.hasAccess()) {
-							if(userOnline(names.getContent())) {
+							if(isPlayerOnline(names.getContent())) {
 								sortedList.toFirst();
 								sortedList.insert(names.getContent()+ ";1");
 							}else {
@@ -144,7 +146,61 @@ public class GameServer extends Server{
 				//Fehlermeldung zurückgeben
 				this.send(pClientIP, pClientPort, "4:Username nicht erkannt");
 			}
+		} else if (msg[0].equals("START_GAME")) {
+		    onlinePlayers.toFirst();
+		while(onlinePlayers.hasAccess()) {
+			//Wenn der User online ist
+			if(onlinePlayers.getContent().getConnection().equals(pClientIP+":"+pClientPort)) {
+				waitingPlayers.append(onlinePlayers.getContent());
+				break;
+			}
+			onlinePlayers.next();
 		}
+		int numberOfWaitingPlayers = 0;
+		waitingPlayers.toFirst();
+		while(waitingPlayers.hasAccess()) {
+			//Wenn der User online ist
+			numberOfWaitingPlayers++;
+			waitingPlayers.next();
+		}
+		if (numberOfWaitingPlayers >= 2) {
+		waitingPlayers.toFirst();
+		Player player1 = waitingPlayers.getContent();
+		waitingPlayers.next();
+		Player player2 = waitingPlayers.getContent();
+		Game newGame = new Game(player1, player2);
+		runningGames.append(newGame);
+		  }
+		
+		} else if (msg[0].equals("TURN")) {
+		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
+		    runningGames.toFirst();
+		while(runningGames.hasAccess()) {
+			//Wenn der User online ist
+			if (runningGames.getContent().getPlayers()[0].getConnection().equals(pClientIP+":"+pClientPort)) {
+			    runningGames.getContent().turn(runningGames.getContent().getPlayers()[0], coords);
+			    send(runningGames.getContent().getPlayers()[0].getConnection().split(":")[0],
+			    Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+			    "PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+			    send(runningGames.getContent().getPlayers()[1].getConnection().split(":")[0],
+			    Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+			    "PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+			    break;
+			 }
+			 if (runningGames.getContent().getPlayers()[1].getConnection().equals(pClientIP+":"+pClientPort)) {
+			    runningGames.getContent().turn(runningGames.getContent().getPlayers()[1], coords);
+			    send(runningGames.getContent().getPlayers()[0].getConnection().split(":")[0],
+			    Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+			    "PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+			    send(runningGames.getContent().getPlayers()[1].getConnection().split(":")[0],
+			    Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+			    "PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+			    break;
+			 }
+	
+			runningGames.next();
+		}
+		  }
 	}
 	
 	/**
@@ -155,14 +211,14 @@ public class GameServer extends Server{
 	 * @param pName
 	 * @return
 	 */
-	public boolean userOnline(String pName) {
-		onlineUser.toFirst();
-		while(onlineUser.hasAccess()) {
+	public boolean isPlayerOnline(String pName) {
+		onlinePlayers.toFirst();
+		while(onlinePlayers.hasAccess()) {
 			//Wenn der User online ist
-			if(onlineUser.getContent().getUsername().equals(pName)) {
+			if(onlinePlayers.getContent().getUsername().equals(pName)) {
 				return true;
 			}
-			onlineUser.next();
+			onlinePlayers.next();
 		}
 		return false;
 	}
