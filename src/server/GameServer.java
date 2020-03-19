@@ -6,15 +6,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class GameServer extends Server{
-	
+public class GameServer extends Server {
+
 	private List<User> onlineUser;
 	private DatabaseExecuter db;
+	private List<Player> onlinePlayers;
+	private List<Player> waitingPlayers;
+	private List<Game> runningGames;
 
 	public GameServer(int pPort) {
 		super(pPort);
-		//Liste für User die online sind initialisieren
+		// Liste für User die online sind initialisieren
 		onlineUser = new List<User>();
+		onlinePlayers = new List<Player>();
+		waitingPlayers = new List<Player>();
+		runningGames = new List<Game>();
 		db = new DatabaseExecuter();
 		System.out.println("start");
 	}
@@ -24,7 +30,7 @@ public class GameServer extends Server{
 	 * Bei neuer Verbindung keine Reaktion.
 	 */
 	public void processNewConnection(String pClientIP, int pClientPort) {
-		//Nichts passiert
+		// Nichts passiert
 	}
 
 	@Override
@@ -159,69 +165,121 @@ public class GameServer extends Server{
 			}else {
 				this.send(pClientIP, pClientPort, "8:Fehler beim Verlassen der Liga");
 			}
-		}else {
-			//Fehlermeldung zurückgeben
+		} else if (msg[0].equals("START_GAME")) {
+		    onlinePlayers.toFirst();
+		    while(onlinePlayers.hasAccess()) {
+		    	//Wenn der User online ist
+		    	if(onlinePlayers.getContent().getConnection().equals(pClientIP+":"+pClientPort)) {
+		    		waitingPlayers.append(onlinePlayers.getContent());
+		    		break;
+		    	}
+		    	onlinePlayers.next();
+		    }
+		    int numberOfWaitingPlayers = 0;
+		    waitingPlayers.toFirst();
+		    while(waitingPlayers.hasAccess()) {
+		    	//Wenn der User online ist
+		    	numberOfWaitingPlayers++;
+		    	waitingPlayers.next();
+		    }
+		    if (numberOfWaitingPlayers >= 2) {
+		    	waitingPlayers.toFirst();
+		    	Player player1 = waitingPlayers.getContent();
+		    	waitingPlayers.next();
+		    	Player player2 = waitingPlayers.getContent();
+		    	Game newGame = new Game(player1, player2);
+		    	runningGames.append(newGame);
+		    }
+		} else if (msg[0].equals("TURN")) {
+		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
+		    runningGames.toFirst();
+		    while(runningGames.hasAccess()) {
+		    	//Wenn der User online ist
+		    	if (runningGames.getContent().getPlayers()[0].getConnection().equals(pClientIP+":"+pClientPort)) {
+		    		runningGames.getContent().turn(runningGames.getContent().getPlayers()[0], coords);
+		    		send(runningGames.getContent().getPlayers()[0].getConnection().split(":")[0],
+		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+		    		send(runningGames.getContent().getPlayers()[1].getConnection().split(":")[0],
+		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+		    		break;
+		    	}
+		    	if (runningGames.getContent().getPlayers()[1].getConnection().equals(pClientIP+":"+pClientPort)) {
+		    		runningGames.getContent().turn(runningGames.getContent().getPlayers()[1], coords);
+		    		send(runningGames.getContent().getPlayers()[0].getConnection().split(":")[0],
+		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+		    		send(runningGames.getContent().getPlayers()[1].getConnection().split(":")[0],
+		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
+		    		break;
+		    	}
+		    	runningGames.next();
+		   }
+		}else{
+			// Fehlermeldung zurückgeben
 			this.send(pClientIP, pClientPort, "4:Username nicht erkannt");
-			
 		}
 	}
-	
+
 	/**
-	 * Prüft, ob der Name des Spielers in der Liste mit den 
-	 * Spielern, die online sind, enthalten ist. Ist dies der
-	 * Fall, dann wird true zurückgegeben. Sonst wird false
-	 * zurückgegeben.
+	 * Prüft, ob der Name des Spielers in der Liste mit den Spielern, die online
+	 * sind, enthalten ist. Ist dies der Fall, dann wird true zurückgegeben. Sonst
+	 * wird false zurückgegeben.
+	 * 
 	 * @param pName
 	 * @return
 	 */
 	public boolean userOnline(String pName) {
 		onlineUser.toFirst();
-		while(onlineUser.hasAccess()) {
-			//Wenn der User online ist
-			if(onlineUser.getContent().getUsername().equals(pName)) {
+		while (onlineUser.hasAccess()) {
+			// Wenn der User online ist
+			if (onlineUser.getContent().getUsername().equals(pName)) {
 				return true;
 			}
 			onlineUser.next();
 		}
 		return false;
 	}
-	
+
 	public void askForFriends(String[] msg) {
 		List<String> allUsers = db.getFriends(msg[1]);
 		allUsers.toFirst();
-		while(allUsers.hasAccess()) {
-			if(userOnline(allUsers.getContent())) {
+		while (allUsers.hasAccess()) {
+			if (userOnline(allUsers.getContent())) {
 				User aktUser = getOnlineUser(allUsers.getContent());
-				//Aufforderung schicken
+				// Aufforderung schicken
 				this.send(aktUser.getIp(), aktUser.getPort(), "3:fordere Freunde");
 			}
 			allUsers.next();
 		}
 	}
-	
+
 	public void askForMembers(String[] msg) {
 		List<String> allUsers = db.getMembers(db.getLeagueNameFromUsername(msg[1]));
 		allUsers.toFirst();
-		while(allUsers.hasAccess()) {
-			if(userOnline(allUsers.getContent())){
+		while (allUsers.hasAccess()) {
+			if (userOnline(allUsers.getContent())) {
 				User aktUser = getOnlineUser(allUsers.getContent());
-				//Aufforderung schicken
+				// Aufforderung schicken
 				this.send(aktUser.getIp(), aktUser.getPort(), "4:Lade Liga");
 			}
 			allUsers.next();
 		}
 	}
-	
+
 	/**
-	 * Gibt das passende Userobjekt zu einem Usernamen zurück.
-	 * Ist der User nicht online wird null zurückgegeben.
+	 * Gibt das passende Userobjekt zu einem Usernamen zurück. Ist der User nicht
+	 * online wird null zurückgegeben.
+	 * 
 	 * @param pUsername
 	 * @return
 	 */
 	public User getOnlineUser(String pUsername) {
 		this.onlineUser.toFirst();
-		while(this.onlineUser.hasAccess()) {
-			if(this.onlineUser.getContent().getUsername().equals(pUsername)) {
+		while (this.onlineUser.hasAccess()) {
+			if (this.onlineUser.getContent().getUsername().equals(pUsername)) {
 				return this.onlineUser.getContent();
 			}
 			this.onlineUser.next();
@@ -235,19 +293,20 @@ public class GameServer extends Server{
 	 */
 	public void processClosingConnection(String pClientIP, int pClientPort) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	/**
 	 * Ändert die Liga-Headline.
 	 */
 	public void changeLeagueHeadline() {
-		
+
 	}
-	
-	public static void main (String[] args) {
+
+	public static void main(String[] args) {
 		GameServer server = new GameServer(9999);
-		for(;;) {}
+		for (;;) {
+		}
 	}
 
 }

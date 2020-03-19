@@ -8,9 +8,29 @@ package server;
  */
 public class Player
 {
+    private String username;
+	private String connection;
     char symbol;
     
-    public Player()
+    public Player(String pUsername, String pConnection)
     {
+        username = pUsername;
+        connection = pConnection;
     }
+    
+    public String getUsername() {
+		return username;
+	}
+
+	public String getConnection() {
+		return connection;
+	}
+	
+	public char getSymbol() {
+		return symbol;
+	}
+
+	public void setSymbol(char symbol) {
+		this.symbol = symbol;
+	}
 }

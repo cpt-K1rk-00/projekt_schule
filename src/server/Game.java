@@ -24,11 +24,12 @@ public class Game {
 		players[1] = pPlayer2;
 	}
 
-	public void turn(Player currentPlayer, int[] move) {
+	public boolean turn(Player currentPlayer, int[] move) {
 		if (this.board[move[1]][move[0]] == '#') {
 			this.board[move[1]][move[0]] = currentPlayer.symbol;
+			return true;
 		}
-		String result = checkResult(this.board, currentPlayer);
+		return false;
 	}
 
 	public static String checkResult(char[][] board, Player currentPlayer) {
@@ -93,4 +94,8 @@ public class Game {
 			return "TIE";
 		return null;
 	}
+	
+	public Player[] getPlayers() {
+	    return players;
+	   }
 }
