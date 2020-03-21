@@ -22,7 +22,7 @@ public class GameClient extends Client{
 	//Gibt an, ob der Client sich eingelogt hat
 	private boolean login;
 	private List<User> user;;
-	private League league;
+	private String league;
 	private Main gui;
 	private String username;
 	
@@ -110,10 +110,12 @@ public class GameClient extends Client{
 			if(msg[1].equals("Laden erfolgreich")) {
 				//Prüfen, ob er einer Liga beigetreten ist
 				if(msg[2].equals("keine Liga")) {
+					this.league = "keine Liga";
 					changeHeadline("keine Liga");
 				//Wenn der User in einer Liga spielt
 				}else {
 					changeHeadline(msg[2]);
+					this.league = msg[2];
 					//Ligadaten in Liste speichern
 					List<String> result = new List<String>();
 					for(int i = 3; i < msg.length; i++) {
@@ -154,12 +156,41 @@ public class GameClient extends Client{
 				changeHeadline("keine Liga");
 				Platform.runLater(new Runnable() {public void run() {gui.getRoot().setCenter(null);}});
 			}
+		}else if(msg[0].equals("10")) {
+			System.out.println("msg:" + msg[1]);
+			if(msg[1].equals("Liga beigetreten")){
+				System.out.println(2);
+				this.loadLeague(this.username);
+			}else {
+				Platform.runLater(new Runnable(){public void run() {gui.showError("Fehler beim Beitritt der Liga");}});
+			}
+		}else if(msg[0].equals("12")) {
+			//Wenn das Laden erfolgreich war
+			if(msg[1].equals("Laden erfolgreich")) {
+				
+				List<String> tmp = new List<String>();
+				for(int i = 2; i < msg.length; i++) {
+					tmp.append(msg[i]);
+				}
+				Platform.runLater(new Runnable() {
+					public void run() {
+						gui.getRoot().setCenter(gui.createLeagueList(tmp));
+					}
+				});
+			}else {
+				Platform.runLater(new Runnable() {
+					public void run() {
+						gui.getRoot().setCenter(gui.createLeagueList(null));
+					}
+				});
+			}
 		}
 	}
 	
 	public void changeHeadline(String headline) {
 		Platform.runLater(new Runnable() {
 			public void run() {
+				System.out.println("aufgerufen");
 				Label headlineLabel = new Label(headline);
 				headlineLabel.setFont(new Font("Cambria", 50));
 				headlineLabel.setMinHeight(gui.getY() * 0.2);
@@ -258,7 +289,7 @@ public class GameClient extends Client{
 	 * @param pLeagueName
 	 */
 	public void joinLeague(String pLeagueName) {
-		
+		this.send("JOIN_LEAGUE:" + pLeagueName);
 	}
 	
 	/**
@@ -268,6 +299,10 @@ public class GameClient extends Client{
 	 */
 	public void loadLeague(String pUsername) {
 		this.send("LOAD_LEAGUE:" + pUsername);
+	}
+	
+	public void getAllLeagues() {
+		this.send("GET_ALL_LEAGUES");
 	}
 
 	public boolean isLogin() {
@@ -286,11 +321,11 @@ public class GameClient extends Client{
 		this.user = user;
 	}
 
-	public League getLeague() {
+	public String getLeague() {
 		return league;
 	}
 
-	public void setLeague(League league) {
+	public void setLeague(String league) {
 		this.league = league;
 	}
 	

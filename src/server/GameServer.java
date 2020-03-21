@@ -191,7 +191,30 @@ public class GameServer extends Server {
 		    	Game newGame = new Game(player1, player2);
 		    	runningGames.append(newGame);
 		    }
-		} else if (msg[0].equals("TURN")) {
+		}else if(msg[0].equals("GET_ALL_LEAGUES")) {
+			List<String> names = db.getLeagues();
+			if(names != null) {
+				String result = "";
+				names.toFirst();
+				while(names.hasAccess()) {
+					if(!names.getContent().equals("keine Liga")) {
+						result += names.getContent() + ":";
+					}
+					names.next();
+				}
+				this.send(pClientIP, pClientPort, "12:Laden erfolgreich:" + result);
+			}else {
+				this.send(pClientIP, pClientPort, "12:Fehler beim laden der Ligen");
+			}
+		} else if(msg[0].equals("JOIN_LEAGUE")){
+			System.out.println(1);
+			//Der Liga beitreten
+			if(db.joinLeague(msg[1])) {
+				this.send(pClientIP, pClientPort, "10:Liga beigetreten");
+			}else {
+				this.send(pClientIP, pClientPort, "10:Fehler beim Beitritt der Liga");
+			}
+		}else if (msg[0].equals("TURN")) {
 		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
 		    runningGames.toFirst();
 		    while(runningGames.hasAccess()) {
@@ -258,7 +281,6 @@ public class GameServer extends Server {
 	}
 
 	public void askForMembers(String[] msg) {
-		System.out.println("Message gestartet");
 		//alle User der Liga
 		List<String> member = db.getMembers(db.getLeagueNameFromUsername(msg[1]));
 		member.toFirst();

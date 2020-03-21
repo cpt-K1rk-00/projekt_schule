@@ -274,6 +274,22 @@ public class DatabaseExecuter {
 		return null;
 	}
 	
+	public boolean joinLeague(String pLeagueName) {
+		DatabaseConnectorMySQL con = getCon();
+		//Wenn es keine Fehlermeldung gibt
+		if(con.getErrorMessage() == null) {
+			con.executeStatement("UPDATE `users` SET `liga_id` = '1' WHERE `users`.`user_id` = (SELECT `liga_id` FROM `ligen` WHERE ligen.name LIKE'" + pLeagueName + "')");
+			//Wenn es keine Fehlermeldung gab
+			if(con.getErrorMessage() == null) {
+				System.out.println(2);
+				return true;
+			}else {
+				System.out.println(con.getErrorMessage());
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Verlässt eine Liga, in der sich der User befindet.
 	 * Gibt den Namen der Liga zurück, damit deren Ansicht aktualisiert werden
