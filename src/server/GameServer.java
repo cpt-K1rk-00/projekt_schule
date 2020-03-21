@@ -154,7 +154,19 @@ public class GameServer extends Server {
 			}else {
 				this.send(pClientIP, pClientPort, "8:Fehler beim Verlassen der Liga");
 			}
-		} else if (msg[0].equals("START_GAME")) {
+		}else if(msg[0].equals("REMOVE_FRIEND")){
+			//Die Verbindung herstellen
+			if(db.removeFriendship(msg[1], msg[2])) {
+				this.send(pClientIP, pClientPort, "5:Freund entfernt");
+				//Wenn der andere User online ist
+				User exfriend = getOnlineUser(msg[2]);
+				if(exfriend != null) {
+					this.send(exfriend.getIp(), exfriend.getPort(), "3:fordere Freunde");
+				}
+			}else {
+				this.send(pClientIP, pClientPort, "5:Fehler beim Entfernen des Freundes");
+			}
+		}else if (msg[0].equals("START_GAME")) {
 		    onlinePlayers.toFirst();
 		    while(onlinePlayers.hasAccess()) {
 		    	//Wenn der User online ist
@@ -254,10 +266,7 @@ public class GameServer extends Server {
 			//Wenn der User online ist
 			if(userOnline(member.getContent().split(";")[0])) {
 				User aktUser = getOnlineUser(member.getContent().split(";")[0]);
-				System.out.println(aktUser.getUsername());
 				this.send(aktUser.getIp(), aktUser.getPort(), "8:Lade Liga");
-			}else {
-				System.out.println("offline:" + member.getContent());
 			}
 			member.next();
 		}

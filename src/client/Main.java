@@ -1,5 +1,7 @@
 package client;
 
+import java.util.Optional;
+
 import javafx.application.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -8,9 +10,12 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -366,9 +371,23 @@ public class Main extends Application{
 		while(friends.hasAccess()) {
 			Button aktButton = new Button(friends.getContent().getUsername());
 			aktButton.setMinWidth(x * 0.3);
-			aktButton.setOnAction(new EventHandler<ActionEvent>() {
-				public void handle(ActionEvent event) {
-					Button src = (Button) event.getSource();
+			
+			aktButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent event) {
+					Button btn = (Button) event.getSource();
+					//linksklick
+					if(event.getButton() == MouseButton.PRIMARY) {
+						
+					}else if(event.getButton() == MouseButton.SECONDARY) {
+						Alert alert = new Alert(AlertType.CONFIRMATION);
+						alert.setTitle("Remove Friend");
+						alert.setHeaderText("permission");
+						alert.setContentText("Remove Friend?");
+						Optional<ButtonType> result = alert.showAndWait();
+						if (result.get() == ButtonType.OK){
+							client.removeFriend(client.getUsername(), btn.getText());
+						}
+					}
 				}
 			});
 			//Prüfen, ob freund online ist

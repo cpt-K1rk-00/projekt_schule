@@ -123,6 +123,31 @@ public class DatabaseExecuter {
 		return null;
 	}
 	
+	/**
+	 * Die Methode bekommt den Nutzernamen zweier Freunde übergeben.
+	 * Wenn das Entfernen der Freundschaft erfolgreich war, dann 
+	 * wird true zurückgegeben, sonst wird false zurückgegeben.
+	 * @param pUsername
+	 * @param pFriend
+	 * @return
+	 */
+	public boolean removeFriendship(String pUsername, String pFriend) {
+		DatabaseConnectorMySQL con = getCon();
+		//Wenn es keinen Fehler gab
+		if(con != null) {
+			//Freundschaft löschen
+			con.executeStatement("DELETE FROM freunde WHERE spielerid_2 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pUsername + "') AND spielerid_1 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pFriend + "')");
+			con.executeStatement("DELETE FROM freunde WHERE spielerid_1 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pUsername + "') AND spielerid_2 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pFriend + "')");
+			//Prüfen, ob es keinen Fehler gab
+			if(con.getErrorMessage() == null) {
+				return true;
+			}
+			System.out.println(con.getErrorMessage());
+		}
+		return false;
+		
+	}
+	
 	
 	/**
 	 * Die fügt eine neue Freundschaft der Datenbank hinzu und

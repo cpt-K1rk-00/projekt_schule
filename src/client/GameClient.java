@@ -108,7 +108,6 @@ public class GameClient extends Client{
 		}else if(msg[0].equals("4")){
 			//wenn es keine Fehler gab
 			if(msg[1].equals("Laden erfolgreich")) {
-				System.out.println("110:Laden erfolgreich");
 				//Prüfen, ob er einer Liga beigetreten ist
 				if(msg[2].equals("keine Liga")) {
 					changeHeadline("keine Liga");
@@ -131,12 +130,24 @@ public class GameClient extends Client{
 					this.loadLeague(this.username);
 				}
 			}
+		}else if(msg[0].equals("5")) {
+			//Wenn erfolgreich
+			if(msg[1].equals("Freund entfernt")) {
+				//Freunde neu laden
+				this.getFriends(this.username);
+			}else if(msg[1].equals("Fehler beim Enftfernen des Freundes")) {
+				Platform.runLater(new Runnable() {
+					public void run() {
+						//Fehlermeldung ausgeben
+						gui.showError("Fehler beim Entfernen des Freundes");
+					}
+				});
+			}
 		}else if(msg[0].equals("8")) {
 			if(msg[1].equals("Fehler beim Verlassen der Liga")) {
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Fehler beim Verlassen der Liga");}});
 			//Liga neu Laden
 			}else if(msg[1].equals("Lade Liga")) {
-				System.out.println("138: in lade liga");
 				this.loadLeague(this.username);
 			//GUI aktualisieren
 			}else {
@@ -206,7 +217,7 @@ public class GameClient extends Client{
 	 * @param pFriend
 	 */
 	public void removeFriend(String pUsername, String pFriend) {
-		
+		this.send("REMOVE_FRIEND:" + pUsername + ":" + pFriend);
 	}
 	
 	/**
@@ -281,6 +292,10 @@ public class GameClient extends Client{
 
 	public void setLeague(League league) {
 		this.league = league;
+	}
+	
+	public String getUsername() {
+		return this.username;
 	}
 
 }
