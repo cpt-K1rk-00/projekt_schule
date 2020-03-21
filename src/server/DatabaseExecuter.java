@@ -242,6 +242,8 @@ public class DatabaseExecuter {
 			if(con.getErrorMessage() == null) {
 				//Den Liganamen zurückgeben
 				return con.getCurrentQueryResult().getData()[0][0];
+			}else {
+				System.out.println(con.getErrorMessage());
 			}
 		}
 		return null;
@@ -257,10 +259,12 @@ public class DatabaseExecuter {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehlermeldung gab
 		String leagueName = getLeagueNameFromUsername(pUsername);
-		con.executeStatement("UPDATE users SET liga_id= 0,liga_punkte WHERE users.username = '" + pUsername + "'");
+		con.executeStatement("UPDATE users SET liga_id= 0 WHERE users.username = '" + pUsername + "'");
 		if(con.getErrorMessage() == null) {
 			//Erfolg zurückgeben
 			return leagueName;
+		}else {
+			System.out.println(con.getErrorMessage());
 		}
 		return null;
 	}
@@ -279,6 +283,6 @@ public class DatabaseExecuter {
 	
 	public static void main (String[] args) {
 		DatabaseExecuter ex = new DatabaseExecuter();
-		System.out.println(ex.getFriends("killer123"));
+		ex.leaveLeague("killer123");
 	}
 }

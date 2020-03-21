@@ -2,7 +2,6 @@ package client;
 
 import com.sun.org.apache.bcel.internal.classfile.Node;
 import com.sun.org.apache.bcel.internal.generic.GETFIELD;
-
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -38,7 +37,6 @@ public class GameClient extends Client{
 	public void processMessage(String pMessage) {
 		//Nachricht einteilen
 		String[] msg = pMessage.split(":");
-		System.out.println(msg[1]);
 		//Login-Antwort
 		if(msg[0].equals("1")) {
 			//Wenn der Login erfolgreich ist
@@ -74,7 +72,6 @@ public class GameClient extends Client{
 			}
 		//Freunde laden
 		}else if(msg[0].equals("3")) {
-			System.out.println("in freunde anfordern");
 			if(msg[1].equals("Laden erfolgreich")) {
 				List<User> user = new List<User>();
 				//Die Freundesliste in der GUI aktualieren
@@ -109,11 +106,9 @@ public class GameClient extends Client{
 			}
 		//Ligamitglieder lagen
 		}else if(msg[0].equals("4")){
-			System.out.println("in liga anfordern");
-			System.out.println("msg:" + msg[1]);
 			//wenn es keine Fehler gab
 			if(msg[1].equals("Laden erfolgreich")) {
-				System.out.println(0);
+				System.out.println("110:Laden erfolgreich");
 				//Prüfen, ob er einer Liga beigetreten ist
 				if(msg[2].equals("keine Liga")) {
 					changeHeadline("keine Liga");
@@ -127,21 +122,21 @@ public class GameClient extends Client{
 					}
 					VBox leagueView = gui.createLeagueView(result);
 					//GUI aktualiseren
-					Platform.runLater(new Runnable() {public void run() {gui.getRoot().setCenter(leagueView);}});
+					Platform.runLater(new Runnable() {public void run() {gui.getRoot().setCenter(null);gui.getRoot().setCenter(leagueView);}});
 				}
 			}else if(msg[1].equals("Lade Liga")) {
 				//Wenn bereits eingelogt
 				if(login) {
+					System.out.println("gib gas du nutte");
 					this.loadLeague(this.username);
 				}
 			}
 		}else if(msg[0].equals("8")) {
-			System.out.println("in Liga verlassen");
 			if(msg[1].equals("Fehler beim Verlassen der Liga")) {
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Fehler beim Verlassen der Liga");}});
 			//Liga neu Laden
 			}else if(msg[1].equals("Lade Liga")) {
-				System.out.println("in liga verlassen");
+				System.out.println("138: in lade liga");
 				this.loadLeague(this.username);
 			//GUI aktualisieren
 			}else {

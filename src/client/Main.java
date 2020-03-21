@@ -125,7 +125,6 @@ public class Main extends Application{
 		registerButton.setStyle(cssStyle);
 		registerButton.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
-				System.out.println("Register clicked");
 				updateScene(setRegisterScene());
 				
 			}
@@ -310,7 +309,6 @@ public class Main extends Application{
 		manageLeague.setStyle(cssStyle);
 		manageLeague.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
-				System.out.println("leave League");
 				client.leaveLeague();
 			}
 		});
@@ -371,7 +369,6 @@ public class Main extends Application{
 			aktButton.setOnAction(new EventHandler<ActionEvent>() {
 				public void handle(ActionEvent event) {
 					Button src = (Button) event.getSource();
-					System.out.println(src.getText());
 				}
 			});
 			//Prüfen, ob freund online ist
@@ -403,8 +400,6 @@ public class Main extends Application{
 		int index = 1;
 		while(data.hasAccess()) {
 			String[] inf = data.getContent().split(";");
-			System.out.print(inf[0]);
-			System.out.println();
 			//Die Datenspeichern
 			HBox row = new HBox();
 			row.setMinHeight(y * 0.05);
@@ -430,7 +425,6 @@ public class Main extends Application{
 			index++;
 			data.next();
 		}
-		System.out.println(table.getChildren().size());
 		//Die Tabelle hinzeigen
 		return table;
 	}

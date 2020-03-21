@@ -38,7 +38,6 @@ public class GameServer extends Server {
 	 * Antwort nach Protokoll (siehe onenote).
 	 */
 	public void processMessage(String pClientIP, int pClientPort, String pMessage) {
-		System.out.println("msg:" + pMessage);
 		
 		String[] msg = pMessage.split(":");
 		//Für Login Vorgang
@@ -62,7 +61,6 @@ public class GameServer extends Server {
 			}
 		//Für Registrierungs Vorgang
 		}else if(msg[0].equals("REGISTER")) {
-			System.out.println("in registrierugn");
 			//Registrierung prüfen
 			String res = db.register(msg[1], msg[2]);
 			//Wenn die Registrierung erfolgreich war
@@ -77,9 +75,7 @@ public class GameServer extends Server {
 			}
 		//Für Anforderung der Freunde
 		}else if(msg[0].equals("GET_FRIENDS")) {
-			System.out.println("get friends");
 			List<String> names = db.getFriends(msg[1]);
-			System.out.println(names);
 			//Wenn es einen Fehler gab
 			if(names == null) {
 				this.send(pClientIP, pClientPort, "3:Fehler beim Laden der Datei");
@@ -111,7 +107,6 @@ public class GameServer extends Server {
 			
 		//Mitglieder der Liga laden
 		}else if(msg[0].equals("LOAD_LEAGUE")) {
-			System.out.println("Ligamitglieder laden");
 			//Username laden
 			String leagueName = db.getLeagueNameFromUsername(msg[1]);
 			//Wenn es einen Namen gibt
@@ -122,23 +117,17 @@ public class GameServer extends Server {
 					List<String> names = db.getMembers(leagueName);
 					//Wenn es keine Fehler gab
 					if(names != null) {
-						//Prüfen, ob die User online sind
 						String result = "";
 						names.toFirst();
-						List<String> sortedList = new List<String>();
 						while(names.hasAccess()) {
+							String tmp = "";
 							if(userOnline(names.getContent().split(";")[0])) {
-								sortedList.toFirst();
-								sortedList.insert(names.getContent()+ ";1");
+								tmp = names.getContent() + ";1";
 							}else {
-								sortedList.append(names.getContent() + ";0");
+								tmp = names.getContent() + ";0";
 							}
+							result += ":" + tmp;
 							names.next();
-						}
-						sortedList.toFirst();
-						while(sortedList.hasAccess()) {
-							result += ":" + sortedList.getContent();
-							sortedList.next();
 						}
 						this.send(pClientIP, pClientPort, "4:Laden erfolgreich:" + leagueName + result);
 					}else {
@@ -150,7 +139,7 @@ public class GameServer extends Server {
 		}else if(msg[0].equals("LEAVE_LEAGUE")) {
 			//Die Verbindung aufstellen
 			String leagueName = db.leaveLeague(msg[1]);
-			if(leagueName == null) {
+			if(leagueName != null) {
 				this.send(pClientIP, pClientPort, "8:Liga verlassen");
 				//Alle Mitglieder der Liga aktualisieren
 				onlineUser.toFirst();
@@ -158,7 +147,7 @@ public class GameServer extends Server {
 					//Prüfen, ob sie in der gleichen Liga spielen
 					if(db.getLeagueNameFromUsername(onlineUser.getContent().getUsername()).equals(leagueName)){
 						//User auffordern Liga zu laden
-						this.send(pClientIP, pClientPort, "8:Lade Liga");
+						this.send(onlineUser.getContent().getIp(), onlineUser.getContent().getPort(), "8:Lade Liga");
 					}
 					onlineUser.next();
 				}
@@ -257,15 +246,20 @@ public class GameServer extends Server {
 	}
 
 	public void askForMembers(String[] msg) {
-		List<String> allUsers = db.getMembers(db.getLeagueNameFromUsername(msg[1]));
-		allUsers.toFirst();
-		while (allUsers.hasAccess()) {
-			if (userOnline(allUsers.getContent())) {
-				User aktUser = getOnlineUser(allUsers.getContent());
-				// Aufforderung schicken
-				this.send(aktUser.getIp(), aktUser.getPort(), "4:Lade Liga");
+		System.out.println("Message gestartet");
+		//alle User der Liga
+		List<String> member = db.getMembers(db.getLeagueNameFromUsername(msg[1]));
+		member.toFirst();
+		while(member.hasAccess()) {
+			//Wenn der User online ist
+			if(userOnline(member.getContent().split(";")[0])) {
+				User aktUser = getOnlineUser(member.getContent().split(";")[0]);
+				System.out.println(aktUser.getUsername());
+				this.send(aktUser.getIp(), aktUser.getPort(), "8:Lade Liga");
+			}else {
+				System.out.println("offline:" + member.getContent());
 			}
-			allUsers.next();
+			member.next();
 		}
 	}
 
