@@ -36,8 +36,12 @@ public class Board
         return result;
     }
     
-    public void setField(int x, int y, char symbol) {
-    	board[y][x] = symbol;
+    public boolean setField(int x, int y, char symbol) {
+    	if (board[y][x] == '#') {
+    		board[y][x] = symbol;
+    		return true;
+    	}
+    	return false;
     	
     }
     

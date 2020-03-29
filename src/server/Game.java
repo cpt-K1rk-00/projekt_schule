@@ -10,26 +10,16 @@ import java.util.Random;
  */
 public class Game {
 
-	Field board = new Field();
+	Board board = new Board();
 	Player[] players = new Player[2];
 
 	public Game(Player pPlayer1, Player pPlayer2) {
-
-		for (int y = 0; y < 3; y++) {
-			for (int x = 0; x < 3; x++) {
-				board[y][x] = '#';
-			}
-		}
 		players[0] = pPlayer1;
 		players[1] = pPlayer2;
 	}
 
 	public boolean turn(Player currentPlayer, int[] move) {
-		if (this.board[move[1]][move[0]] == '#') {
-			this.board[move[1]][move[0]] = currentPlayer.symbol;
-			return true;
-		}
-		return false;
+		return this.board.setField(move[1], move[0], currentPlayer.symbol);
 	}
 
 	public static String checkResult(char[][] board, Player currentPlayer) {
