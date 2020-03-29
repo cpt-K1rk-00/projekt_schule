@@ -10,7 +10,7 @@ import java.util.Random;
  */
 public class Game {
 
-	char[][] board = new char[3][3];
+	Field board = new Field();
 	Player[] players = new Player[2];
 
 	public Game(Player pPlayer1, Player pPlayer2) {

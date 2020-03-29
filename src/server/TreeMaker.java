@@ -22,21 +22,21 @@ public class TreeMaker
    }
    
    /**
-    * Fügt alle neue Möglichkeiten hinzu.
+    * Fï¿½gt alle neue Mï¿½glichkeiten hinzu.
     */
    public void addNewLeafs(Node<Field> aktNode, char sign){
        for(int x = 0; x < 3; x++){
            for(int y = 0; y < 3; y++){
-               //Neue Möglichkeit hinzufügen
-               char[][] aktField = aktNode.getData().getField();
-               //prüfen, ob das Feld frei ist
+               //Neue Mï¿½glichkeit hinzufï¿½gen
+               char[][] aktField = aktNode.getData().getBaord();
+               //prï¿½fen, ob das Feld frei ist
                if(aktField[y][x] == '#'){
                    //Zug setzen
                    aktField[y][x] = sign;
-                   //Neues Feld als Kind hinzufügen, wenn nicht Sieg oder unentschieden
+                   //Neues Feld als Kind hinzufï¿½gen, wenn nicht Sieg oder unentschieden
                    Field field = new Field();
                    field.setField(aktField);
-                   //Prüfen, ob das aktuelle Feld ein weiteres Spielen möglich macht
+                   //Prï¿½fen, ob das aktuelle Feld ein weiteres Spielen mï¿½glich macht
                    if(true) {
                 	  aktNode.addChild(new Node<Field>(field));
                 	  if(sign == 'x') {
@@ -58,9 +58,9 @@ public class TreeMaker
    
    public void travTree(Node<Field> aktNode) {
 	   //Ausgabe
-	   for(int i = 0; i < aktNode.getData().getField().length; i++) {
-		   for(int j = 0; j < aktNode.getData().getField().length; j++) {
-			  System.out.print(aktNode.getData().getField()[i][j]);
+	   for(int i = 0; i < aktNode.getData().getBaord().length; i++) {
+		   for(int j = 0; j < aktNode.getData().getBaord().length; j++) {
+			  System.out.print(aktNode.getData().getBaord()[i][j]);
 		   }
 		   System.out.println();
 	   }

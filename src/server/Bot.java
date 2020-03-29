@@ -4,8 +4,7 @@ package server;
 /**
  * Beschreiben Sie hier die Klasse Bot.
  * 
- * @author (Ihr Name) 
- * @version (eine Versionsnummer oder ein Datum)
+ * @author Lucas
  */
 public class Bot extends Player
 {
