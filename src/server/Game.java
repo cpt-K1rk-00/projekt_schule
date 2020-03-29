@@ -5,8 +5,8 @@ import java.util.Random;
 /**
  * Beschreiben Sie hier die Klasse Game.
  * 
- * @author Jan, Lucas
- * @version 13.02.2020
+ * @author Lucas
+ * @version 29.03.2020
  */
 public class Game {
 
@@ -21,71 +21,20 @@ public class Game {
 	public boolean turn(Player currentPlayer, int[] move) {
 		return this.board.setField(move[1], move[0], currentPlayer.symbol);
 	}
-
-	public static String checkResult(char[][] board, Player currentPlayer) {
-		boolean win = false;
-		boolean tie = false;
-		for (int y = 0; y < 3; y++) {
-			int tmp = 0;
-			for (int x = 0; x < 3; x++) {
-				if (board[y][x] == currentPlayer.symbol) {
-					tmp++;
-				}
-			}
-			if (tmp == 3) {
-				win = true;
-			}
-		}
-		for (int x = 0; x < 3; x++) {
-			int tmp = 0;
-			for (int y = 0; y < 3; y++) {
-				if (board[y][x] == currentPlayer.symbol) {
-					tmp++;
-				}
-			}
-			if (tmp == 3) {
-				win = true;
-			}
-		}
-		for (int y = 0; y < 3; y++) {
-			int tmp = 0;
-			if (board[y][y] == currentPlayer.symbol) {
-				tmp++;
-			}
-			if (tmp == 3) {
-				win = true;
-			}
-		}
-		for (int y = 0; y < 3; y++) {
-			int tmp = 0;
-			if (board[y][2 - y] == currentPlayer.symbol) {
-				tmp++;
-			}
-			if (tmp == 3) {
-				win = true;
-			}
-		}
-		if (!win) {
-			int tmp = 0;
-			for (int y = 0; y < 3; y++) {
-				for (int x = 0; x < 3; x++) {
-					if (board[y][x] == currentPlayer.symbol) {
-						tmp++;
-					}
-				}
-			}
-			if (tmp == 9) {
-				tie = true;
-			}
-		}
-		if (win)
-			return "WIN";
-		if (tie)
-			return "TIE";
-		return null;
-	}
 	
 	public Player[] getPlayers() {
 	    return players;
 	   }
+	
+	public char getWinner() {
+		return board.getWinner();
+	}
+	
+	public boolean isFinished() {
+		return board.isFinished();
+	}
+	
+	public boolean isTied() {
+		return board.isTied();
+	}
 }
