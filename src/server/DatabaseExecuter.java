@@ -308,7 +308,7 @@ public class DatabaseExecuter {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehlermeldung gibt
 		if(con.getErrorMessage() == null) {
-			con.executeStatement("UPDATE `users` SET `liga_punkte` = liga_punkte + 3 WHERE `users`.`username` LIKE'" + pUsername + "'");
+			con.executeStatement("UPDATE `users` SET `liga_punkte` = 'liga_punkte + 3 WHERE `users`.`user_id` = (SELECT `liga_id` FROM `ligen` WHERE ligen.name LIKE'" + pUsername + "')");
 			//Wenn es keine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
 				System.out.println(2);

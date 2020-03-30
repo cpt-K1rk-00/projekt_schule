@@ -1,4 +1,4 @@
-package client;
+ 
 
 import com.mysql.jdbc.UpdatableResultSet;
 import com.sun.org.apache.bcel.internal.classfile.Node;
@@ -327,7 +327,7 @@ public class GameClient extends Client{
 	 * @param pLeagueName
 	 */
 	public void joinLeague(String pLeagueName) {
-		this.send("JOIN_LEAGUE:" + pLeagueName);
+		this.send("JOIN_LEAGUE:" + this.getUsername() + ":" + pLeagueName);
 	}
 	
 	/**

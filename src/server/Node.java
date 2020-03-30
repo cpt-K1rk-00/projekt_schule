@@ -1,7 +1,3 @@
-package server;
-
-import server.List;
-
 public class Node<T> {
  
 	private T data = null;
