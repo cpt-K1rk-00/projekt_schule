@@ -1,7 +1,7 @@
 package server;
 
 /**
- * Die Klasse dient als Schnittstelle zu der Klasse DatabaseConnectorMySQL und f�hrt Vorg�nge, wie den
+ * Die Klasse dient als Schnittstelle zu der Klasse DatabaseConnectorMySQL und fï¿½hrt Vorgï¿½nge, wie den
  * Login-Vorgang oder das erstellen einer Freundesliste aus.
  * @author Jan, Lucas
  *
@@ -11,8 +11,8 @@ public class DatabaseExecuter {
 	PasswordAuthentication auth = new PasswordAuthentication();
 	
 	/**
-	 * Verbindet sich mit der Datenbank und gibt ein DatabaseConnectorMySQL-Objekt zur�ck.
-	 * Wenn es einen Fehler gab, wird null zur�ckgegeben.
+	 * Verbindet sich mit der Datenbank und gibt ein DatabaseConnectorMySQL-Objekt zurï¿½ck.
+	 * Wenn es einen Fehler gab, wird null zurï¿½ckgegeben.
 	 * @return
 	 */
 	private DatabaseConnectorMySQL getCon() {
@@ -25,9 +25,9 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * Die Methode gibt 1 zur�ck, wenn der Username und das Passwort existieren.
-	 * Die Methode gibt 0 zur�ck, wenn die Anmeldedaten falsch sind.
-	 * Die Methode gibt -1 zur�ck, wenn es einen anderen Fehler gab.	 * 
+	 * Die Methode gibt 1 zurï¿½ck, wenn der Username und das Passwort existieren.
+	 * Die Methode gibt 0 zurï¿½ck, wenn die Anmeldedaten falsch sind.
+	 * Die Methode gibt -1 zurï¿½ck, wenn es einen anderen Fehler gab.	 * 
 	 * @param pUsername
 	 * @param pPassword
 	 * @return
@@ -36,9 +36,9 @@ public class DatabaseExecuter {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keinen Fehler gab
 		if(con != null) {
-			//Pr�fen, ob der Username mit Passwort vorliegt
+			//Prï¿½fen, ob der Username mit Passwort vorliegt
 			con.executeStatement("SELECT password FROM users WHERE username='" + pUsername + "'");
-			//Pr�fen, ob es eine Fehlermeldung gab
+			//Prï¿½fen, ob es eine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
 				QueryResult result = con.getCurrentQueryResult();
 				if(result.getRowCount() == 1) {
@@ -60,10 +60,10 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * F�gt einen neuen Nutzer der Datenbank hinzu.
-	 * Ist der Nutzername bereits vorhanden, wird eine Nachricht zur�ckgegeben.
-	 * Gibt es einen Fehler, wird die Fehlermeldung zur�ckgegebem.
-	 * Sonst wird eine Best�tigung zur�ckgegeben.
+	 * Fï¿½gt einen neuen Nutzer der Datenbank hinzu.
+	 * Ist der Nutzername bereits vorhanden, wird eine Nachricht zurï¿½ckgegeben.
+	 * Gibt es einen Fehler, wird die Fehlermeldung zurï¿½ckgegebem.
+	 * Sonst wird eine Bestï¿½tigung zurï¿½ckgegeben.
 	 * @param pUsername
 	 * @param pPassword
 	 */
@@ -72,29 +72,29 @@ public class DatabaseExecuter {
 		//Wenn es keine Fehler gab
 		if(con != null) {
 			con.executeStatement("SELECT username FROM users WHERE username LIKE '" + pUsername + "'");
-			//Pr�fen, ob es keinen Fehler gab
+			//Prï¿½fen, ob es keinen Fehler gab
 			if(con.getErrorMessage() == null) {
-				//Pr�fen, ob der Username vergeben ist
+				//Prï¿½fen, ob der Username vergeben ist
 				if(con.getCurrentQueryResult().getColumnCount() == 1) {
 					con.close();
 					return "Username bereits vergeben";
 				}
 				//Nutzernamen und Passwort eingeben
-				//Not L�sung sp�ter �ndern
+				//Not Lï¿½sung spï¿½ter ï¿½ndern
 				con.executeStatement("SELECT user_id FROM users ORDER BY user_id DESC LIMIT 0,1");
 				if(con.getErrorMessage() != null) {
-					System.out.println("Fehler bei h�chster ID");
+					System.out.println("Fehler bei hï¿½chster ID");
 					return "Fehler beim Einfuegen des Users";
 				}
 				int id = Integer.parseInt(con.getCurrentQueryResult().getData()[0][0]) + 1; 
 				con.executeStatement("INSERT INTO users (user_id, username, password, online, liga_id, liga_punkte) VALUES (" + id + ",'" + pUsername + "','" + auth.hash(pPassword.toCharArray()) +"0, 0, 0')");
 				con.close();
-				//Pr�fen, ob es einen Fehler beim einf�gen gab
+				//Prï¿½fen, ob es einen Fehler beim einfï¿½gen gab
 				if(con.getErrorMessage() != null) {
 					System.out.println(con.getErrorMessage());
 					return "Fehler beim Einfuegen des Users";
 				}
-				//Best�tigung des Einf�gens
+				//Bestï¿½tigung des Einfï¿½gens
 				return "Username eingefuegt";
 			}
 		}
@@ -104,7 +104,7 @@ public class DatabaseExecuter {
 	/**
 	 * Die Methode gibt eine Liste mit den Namen der User, die in der
 	 * Freundesliste gespeichert sind. Gibt es keine Freunde ist die Liste leer.
-	 * Gibt es einen Fehler, wird null zur�ckgegeben.
+	 * Gibt es einen Fehler, wird null zurï¿½ckgegeben.
 	 * @param pUsername
 	 * @return
 	 */
@@ -113,9 +113,9 @@ public class DatabaseExecuter {
 		List<String> names = new List<String>();
 		//Wenn es keinen Fehler gab
 		if(con != null) {
-			//Gibt alle Freunde einers Username zur�ck
+			//Gibt alle Freunde einers Username zurï¿½ck
 			con.executeStatement("(select users.username from users, freunde where users.user_id = freunde.spielerid_1 and freunde.spielerid_2 = (SELECT DISTINCT users.user_id FROM users WHERE users.username = '" + pUsername + "')) UNION (select users.username from users, freunde where users.user_id = freunde.spielerid_2 and freunde.spielerid_1 = (SELECT DISTINCT users.user_id FROM users WHERE users.username = '" + pUsername +"'))");
-			//Pr�fen, ob es keinen Fehler gab
+			//Prï¿½fen, ob es keinen Fehler gab
 			if(con.getErrorMessage() == null) {
 				QueryResult result = con.getCurrentQueryResult();
 				for(int i = 0; i < result.getRowCount(); i++) {
@@ -131,9 +131,9 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * Die Methode bekommt den Nutzernamen zweier Freunde �bergeben.
+	 * Die Methode bekommt den Nutzernamen zweier Freunde ï¿½bergeben.
 	 * Wenn das Entfernen der Freundschaft erfolgreich war, dann 
-	 * wird true zur�ckgegeben, sonst wird false zur�ckgegeben.
+	 * wird true zurï¿½ckgegeben, sonst wird false zurï¿½ckgegeben.
 	 * @param pUsername
 	 * @param pFriend
 	 * @return
@@ -142,10 +142,10 @@ public class DatabaseExecuter {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keinen Fehler gab
 		if(con != null) {
-			//Freundschaft l�schen
+			//Freundschaft lï¿½schen
 			con.executeStatement("DELETE FROM freunde WHERE spielerid_2 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pUsername + "') AND spielerid_1 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pFriend + "')");
 			con.executeStatement("DELETE FROM freunde WHERE spielerid_1 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pUsername + "') AND spielerid_2 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pFriend + "')");
-			//Pr�fen, ob es keinen Fehler gab
+			//Prï¿½fen, ob es keinen Fehler gab
 			if(con.getErrorMessage() == null) {
 				return true;
 			}
@@ -157,53 +157,59 @@ public class DatabaseExecuter {
 	
 	
 	/**
-	 * Die f�gt eine neue Freundschaft der Datenbank hinzu und
-	 * es wird eine Best�tigung zur�ckgegeben
-	 * Sind beide bereits befreundet, wird eine Meldung zur�ckgegeben.
-	 * Ist der Fehler unbekannt, wird null zur�ckgegeben.
+	 * Die fï¿½gt eine neue Freundschaft der Datenbank hinzu und
+	 * es wird eine Bestï¿½tigung zurï¿½ckgegeben
+	 * Sind beide bereits befreundet, wird eine Meldung zurï¿½ckgegeben.
+	 * Ist der Fehler unbekannt, wird null zurï¿½ckgegeben.
 	 * @param pUsername1
 	 * @param pUsername2
 	 * @return
 	 */
-	public String addFriendship(String pUsername1, String pUsername2) {
-		DatabaseConnectorMySQL con = getCon();
-		//Pr�fen, ob es einen Fehler mit der Verbindung gab
-		if(con != null) {
-			//Pr�fen, ob die User bereits miteinander befreundet sind
-			con.executeStatement("(SELECT users.username FROM users, freunde WHERE users.user_id = freunde.spielerid_1 AND " + 
-								"((freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 +"') " + 
-								"AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 +"')) OR " +
-								"(freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 + "') " + 
-								"AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 + "')))) " + 
-								"UNION (SELECT users.username FROM users, freunde WHERE users.user_id = freunde.spielerid_2  " + 
-								"AND ((freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 + "')" + 
-								"AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 + "')) " + 
-								"OR (freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 + "')  " + 
-								"AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 + "'))))");
-			//Pr�fen, ob es keinen Fehler gab
-			if(con.getErrorMessage() == null) {
-				//Pr�fen, ob die Freundschaft bereits existiert
-				if(con.getCurrentQueryResult().getRowCount() == 2) {
-					con.close();
-					return "Freundschaft existiert bereits";
-				}
-				//Neue Freundschaft anlegen
-				con.executeStatement("INSERT INTO freunde (spielerid_1, spielerid_2) VALUES ((SELECT user_id FROM users WHERE username = '" + pUsername1 + 
-						"'), (SELECT user_id FROM users WHERE username = '" + pUsername2 + "'))");
-				con.close();
-				if(con.getErrorMessage() == null) {
-					return "Freundschaft hinzugef�gt";
-				}
-				System.out.println(con.getErrorMessage());
-				return "Fehler beim Laden der Freundschaft";
-			}
-		}
-		return null;
-	}
+	 public String addFriendship(String pUsername1, String pUsername2) {
+	        DatabaseConnectorMySQL con = getCon();
+	        //Pr�fen, ob es einen Fehler mit der Verbindung gab
+	        if(con != null) {
+	            //Prüfen, ob der neue User existiert
+	            con.executeStatement("SELECT username FROM users WHERE username = '" + pUsername2 + "'");
+	            System.out.println(con.getCurrentQueryResult().getRowCount());
+	            if(con.getCurrentQueryResult().getRowCount() == 0){
+	                return "User existiert nicht";
+	            }
+	            //Pr�fen, ob die User bereits miteinander befreundet sind
+	            con.executeStatement("(SELECT users.username FROM users, freunde WHERE users.user_id = freunde.spielerid_1 AND " + 
+	                                "((freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 +"') " + 
+	                                "AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 +"')) OR " +
+	                                "(freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 + "') " + 
+	                                "AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 + "')))) " + 
+	                                "UNION (SELECT users.username FROM users, freunde WHERE users.user_id = freunde.spielerid_2  " + 
+	                                "AND ((freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 + "')" + 
+	                                "AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 + "')) " + 
+	                                "OR (freunde.spielerid_1 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername2 + "')  " + 
+	                                "AND freunde.spielerid_2 = (SELECT users.user_id FROM users WHERE users.username = '" + pUsername1 + "'))))");
+	            //Pr�fen, ob es keinen Fehler gab
+	            if(con.getErrorMessage() == null) {
+	                //Pr�fen, ob die Freundschaft bereits existiert
+	                if(con.getCurrentQueryResult().getRowCount() == 2) {
+	                    con.close();
+	                    return "Freundschaft existiert bereits";
+	                }
+	                //Neue Freundschaft anlegen
+	                con.executeStatement("INSERT INTO freunde (spielerid_1, spielerid_2) VALUES ((SELECT user_id FROM users WHERE username = '" + pUsername1 + 
+	                        "'), (SELECT user_id FROM users WHERE username = '" + pUsername2 + "'))");
+	                con.close();
+	                if(con.getErrorMessage() == null) {
+	                    return "Freundschaft hinzugefuegt";
+	                }
+	                System.out.println(con.getErrorMessage());
+	                return "Fehler beim Laden der Freundschaft";
+	            }
+	        }
+	        return "Fehler beim Hinzufuegen der Freundschaft";
+	    }
 	
 	/**
-	 * Die Methode gibt eine Liste mit allen Namen der vorhandenden Ligen zur�ck.
-	 * Gibt es einen Fehler, dann wird null zur�ckgegeben.
+	 * Die Methode gibt eine Liste mit allen Namen der vorhandenden Ligen zurï¿½ck.
+	 * Gibt es einen Fehler, dann wird null zurï¿½ckgegeben.
 	 * @return
 	 */
 	public List<String> getLeagues() {
@@ -211,9 +217,9 @@ public class DatabaseExecuter {
 		List<String> names = new List<String>();
 		//Wenn es keinen Fehler gab
 		if(con != null) {
-			//Gibt eine Liste mit allen Ligen zur�ck
+			//Gibt eine Liste mit allen Ligen zurï¿½ck
 			con.executeStatement("SELECT name FROM ligen");
-			//Pr�fen, ob es keinen Fehler gab
+			//Prï¿½fen, ob es keinen Fehler gab
 			if(con.getErrorMessage() == null) {
 				QueryResult result = con.getCurrentQueryResult();
 				for(int i = 0; i < result.getRowCount(); i++) {
@@ -230,9 +236,9 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * Gibt die Mitglieder einer Liga zur�ck.
-	 * Wenn die Liga nicht existiert wird null zur�ckgegeben.
-	 * Wenn es keine mitglieber gibt, dann wird dies zur�ck gegeben.
+	 * Gibt die Mitglieder einer Liga zurï¿½ck.
+	 * Wenn die Liga nicht existiert wird null zurï¿½ckgegeben.
+	 * Wenn es keine mitglieber gibt, dann wird dies zurï¿½ck gegeben.
 	 * @param pLeagueName
 	 * @return
 	 */
@@ -241,7 +247,7 @@ public class DatabaseExecuter {
 		List<String> names = new List<String>();
 		//Wenn es keinen Fehler gab
 		if(con.getErrorMessage() == null) {
-			//Gibt eine Liste mit allen Mitgliedern einer Liga zur�ck
+			//Gibt eine Liste mit allen Mitgliedern einer Liga zurï¿½ck
 			con.executeStatement("SELECT username, liga_punkte FROM users WHERE liga_id = (SELECT liga_id FROM ligen WHERE ligen.name = '" + pLeagueName + "') ORDER BY liga_punkte DESC");
 			if(con.getErrorMessage() == null) {
 				QueryResult result = con.getCurrentQueryResult();
@@ -259,7 +265,7 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * Gibt die Liga zu einen Username zur�ck.
+	 * Gibt die Liga zu einen Username zurï¿½ck.
 	 * Kombination aus verschiedenen Methoden.
 	 * @param pUsername
 	 * @return
@@ -268,11 +274,11 @@ public class DatabaseExecuter {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehlermeldung gibt
 		if(con.getErrorMessage() == null) {
-			//Gibt den Namen der Liga in der User spielt zur�ck
+			//Gibt den Namen der Liga in der User spielt zurï¿½ck
 			con.executeStatement("SELECT ligen.name FROM ligen, users WHERE ligen.liga_id = users.liga_id AND users.username = '" + pUsername + "'");
 			//Wenn es keine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
-				//Den Liganamen zur�ckgeben
+				//Den Liganamen zurï¿½ckgeben
 				return con.getCurrentQueryResult().getData()[0][0];
 			}else {
 				System.out.println(con.getErrorMessage());
@@ -298,8 +304,8 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * Verl�sst eine Liga, in der sich der User befindet.
-	 * Gibt den Namen der Liga zur�ck, damit deren Ansicht aktualisiert werden
+	 * Verlï¿½sst eine Liga, in der sich der User befindet.
+	 * Gibt den Namen der Liga zurï¿½ck, damit deren Ansicht aktualisiert werden
 	 * kann.
 	 * @param pUsername
 	 */
@@ -309,7 +315,7 @@ public class DatabaseExecuter {
 		String leagueName = getLeagueNameFromUsername(pUsername);
 		con.executeStatement("UPDATE users SET liga_id= 0 WHERE users.username = '" + pUsername + "'");
 		if(con.getErrorMessage() == null) {
-			//Erfolg zur�ckgeben
+			//Erfolg zurï¿½ckgeben
 			return leagueName;
 		}else {
 			System.out.println(con.getErrorMessage());
@@ -318,14 +324,14 @@ public class DatabaseExecuter {
 	}
 	
 	/**
-	 * Gibt ein Array mit den Siegen, Niederlagen und Unentschieden zur�ck.
-	 * Existiert der Username nicht, wird null zur�ck gegeben.
+	 * Gibt ein Array mit den Siegen, Niederlagen und Unentschieden zurï¿½ck.
+	 * Existiert der Username nicht, wird null zurï¿½ck gegeben.
 	 * (Evlt. als Diagramm darstellen)
 	 * @param pUsername
 	 * @return
 	 */
 	public int[] getStats(String pUsername) {
-		//Sp�ter hinzuf�gen
+		//Spï¿½ter hinzufï¿½gen
 		return null;
 	}
 	

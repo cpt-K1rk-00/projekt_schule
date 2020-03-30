@@ -291,12 +291,6 @@ public class Main extends Application {
 		scroll.setStyle("-fx-background:POWDERBLUE; -fx-background-color:transparent;");
 		scroll.setBorder(null);
 		// Alle Buttons am Boden speichern
-		// Freunde hinzufügen Button machen
-		Button btn = new Button("add friend");
-		btn.setOnAction((evt) -> System.out.println("add"));
-		btn.setMaxHeight(y * 0.1);
-		btn.setMinHeight(y * 0.1);
-		btn.setStyle(cssStyle);
 		// Spielen Button machen
 		Button playButton = new Button("play");
 		playButton.setMinHeight(y * 0.1);
@@ -315,7 +309,7 @@ public class Main extends Application {
 					// Liganamen abfragen
 					System.out.println("aufgerufen");
 					client.getAllLeagues();
-				}else {
+				} else {
 					client.leaveLeague();
 				}
 			}
@@ -331,9 +325,9 @@ public class Main extends Application {
 		subButtonsStore.setMaxWidth(x * 0.6);
 		subButtonsStore.setSpacing(30);
 		subButtonsStore.getChildren().addAll(playButton, manageLeague);
-		HBox buttonsStore = new HBox(subButtonsStore, buttonsRegion1, buttonsRegion2, btn);
+		HBox buttonsStore = new HBox(subButtonsStore, buttonsRegion1, buttonsRegion2);
 		// Button symmetrisch unter der Liste erzeugen
-		buttonsStore.setPadding(new Insets(y * 0.06, (x * 0.3 - btn.getWidth()) * 0.25, 20, 0));
+		buttonsStore.setPadding(new Insets(y * 0.06, x * 0.3, 20, 0));
 		// Der Wurzel hinzufügen
 		root.setTop(headlineStore);
 		ScrollPane leagueView = new ScrollPane(null);
@@ -360,6 +354,27 @@ public class Main extends Application {
 	 */
 	public VBox getFriends(List<User> friends) {
 		friendBox = new VBox();
+		// Das Freunde hinzufügen
+		HBox add = new HBox();
+		TextField input = new TextField();
+		Button doSearch = new Button("add");
+		doSearch.setStyle("-fx-background-color: \r\n" + "        linear-gradient(#ffd65b, #e68400),\r\n"
+				+ "        linear-gradient(#ffef84, #f2ba44),\r\n" + "        linear-gradient(#ffea6a, #efaa22),\r\n"
+				+ "        linear-gradient(#ffe657 0%, #f8c202 50%, #eea10b 100%),\r\n"
+				+ "        linear-gradient(from 0% 0% to 15% 50%, rgba(255,255,255,0.9), rgba(255,255,255,0));");
+		doSearch.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				if (input.getText().equals("")) {
+					showError("kein leeres Feld");
+				} else {
+					client.addFriend(input.getText());
+				}
+			}
+		});
+		input.setMinWidth(x * 0.25);
+		add.getChildren().add(input);
+		add.getChildren().add(doSearch);
+		friendBox.getChildren().add(add);
 		// Am anfang auf null setzen
 		if (friends == null) {
 			Label msg = new Label("Freunde nicht \n geladen");
@@ -470,7 +485,7 @@ public class Main extends Application {
 			aktButton.setMinWidth(x * 0.7);
 			aktButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent event) {
-					Button btn = (Button)event.getSource();
+					Button btn = (Button) event.getSource();
 					client.joinLeague(btn.getText());
 				}
 			});
