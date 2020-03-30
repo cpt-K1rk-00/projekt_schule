@@ -70,6 +70,7 @@ public class DatabaseExecuter {
 	public String register(String pUsername, String pPassword) {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehler gab
+		System.out.println("asdfghj");
 		if(con != null) {
 			con.executeStatement("SELECT username FROM users WHERE username LIKE '" + pUsername + "'");
 			//Prï¿½fen, ob es keinen Fehler gab
@@ -87,7 +88,7 @@ public class DatabaseExecuter {
 					return "Fehler beim Einfuegen des Users";
 				}
 				int id = Integer.parseInt(con.getCurrentQueryResult().getData()[0][0]) + 1; 
-				con.executeStatement("INSERT INTO users (user_id, username, password, online, liga_id, liga_punkte) VALUES (" + id + ",'" + pUsername + "','" + auth.hash(pPassword.toCharArray()) +"0, 0, 0')");
+				con.executeStatement("INSERT INTO users (user_id, username, password, online, liga_id, liga_punkte) VALUES (" + id + ",'" + pUsername + "','" + auth.hash(pPassword.toCharArray()) +"', 0, 0, 0)");
 				con.close();
 				//Prï¿½fen, ob es einen Fehler beim einfï¿½gen gab
 				if(con.getErrorMessage() != null) {

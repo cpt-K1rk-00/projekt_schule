@@ -17,7 +17,7 @@ public class Board
         for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
 				
-				board[y][x] = '-';
+				board[y][x] = '#';
 			}
 		}
     }
@@ -72,8 +72,10 @@ public void setBoard(char[][] pBoard){
     			if (board[y][x] != board[y][0]) {
     				break;
     			}
+    			if (x == 2 && board[y][0] != '#') {
+    				return board[y][0];
+    			}
     		}
-    		return board[y][0];
     	}
     	
     	for (int x = 0; x < 3; x++) {
@@ -81,15 +83,17 @@ public void setBoard(char[][] pBoard){
     			if (board[y][x] != board[0][x]) {
     				break;
     			}
+    			if (y ==2 && board[0][x] != '#') {
+    	    		return board[0][x];
+    			}
     		}
-    		return board[0][x];
     	}
     	
     	for (int i = 1; i < 3; i++) {
     		if (board[i][i] != board[0][0]) {
     			break;
     		}
-    		if (i == 3) {
+    		if (i == 2 && board[0][0] != '#') {
     			return board[0][0];
     		}
     	}
@@ -98,8 +102,8 @@ public void setBoard(char[][] pBoard){
     		if (board[i][2-i] != board[0][0]) {
     			break;
     		}
-    		if (i == 3) {
-    			return board[0][0];
+    		if (i == 2 && board[0][2] != '#') {
+    			return board[0][2];
     		}
     	}
     	

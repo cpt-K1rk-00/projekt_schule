@@ -1,5 +1,6 @@
 package client;
 
+import com.mysql.jdbc.UpdatableResultSet;
 import com.sun.org.apache.bcel.internal.classfile.Node;
 import com.sun.org.apache.bcel.internal.generic.GETFIELD;
 import javafx.application.Platform;
@@ -187,9 +188,41 @@ public class GameClient extends Client{
 				});
 			}
 		}
-		else if (msg[0] == "") {
+		if (msg[0].contentEquals("PLAYER_TURN_RESPONSE")) {
+			String winner = msg[1];
+			String boardAsString = msg[2];
+			boolean yourTurn = msg[3] == "true";
+			System.out.println("asdfgtrdfvtf");
+			Platform.runLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+
+					for (int y = 0; y < 3; y++) {
+						for (int x = 0; x < 3; x++) {
+							char symbol = boardAsString.charAt(3*y+x);
+							if (symbol == '#') {
+								gui.board[y][x].setText("");
+							}
+							else {
+								gui.board[y][x].setText(""+symbol);
+							}
+						}
+					}
+				}
+			});
 			
 		}
+		System.out.println(msg[0]);
+	}
+	
+	public void sendTurn(int pX, int pY) {
+		send("TURN:"+pX+":"+pY);
+	}
+	
+	public void sendStartGame() {
+		send("START_GAME");
 	}
 	
 	public void changeHeadline(String headline) {

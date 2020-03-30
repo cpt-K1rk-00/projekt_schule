@@ -29,6 +29,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import jdk.nashorn.internal.ir.SetSplitState;
 
 /**
  * Die Klasse erzeugt die GUI und startet die Client-Anwendung.
@@ -40,6 +41,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
 	private GameClient client;
+	Button[][] board = new Button[3][3];
 
 	private Scene aktScene; // Speichert die aktuell genutzte Scene
 	private Stage mainStage;
@@ -88,13 +90,57 @@ public class Main extends Application {
 		mainStage.setScene(setLoginScene());
 		mainStage.show();
 	}
+	
+	public Scene setGameScene(String boardAsString, String opponent, boolean yourTurn) {
+		int pX = 0; int pY = 0; int pW = 50; int pH = 50;
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
+				final int tmpX = x;
+				final int tmpY = y;
+				board[y][x] = new Button();
+				char symbol = boardAsString.charAt(3*y+x);
+				if (symbol == '#') {
+					board[y][x].setText("");
+				}
+				else {
+					board[y][x].setText(""+symbol);
+				}
+				System.out.println(boardAsString);
+				board[y][x].setLayoutX(pX + pW * x);
+				board[y][x].setLayoutY(pY + pH * y);
+				board[y][x].setPrefWidth(pW);
+				board[y][x].setPrefHeight(pH);
+				
+				board[y][x].setOnAction(e -> {
+					System.out.println("btn");
+					client.sendTurn(tmpX, tmpY);
+				});
+			}
+		}
+		VBox store = new VBox();
+		for (int y = 0; y < 3; y++) {
+			HBox store2 = new HBox();
+			for (int x = 0; x < 3; x++) {
+				store2.getChildren().add(board[y][x]);
+				store2.setAlignment(Pos.CENTER);
+				store2.setSpacing(10);
+				store2.setStyle("-fx-background-color:POWDERBLUE");
+			}
+			store.getChildren().add(store2);
+		}
+		store.setAlignment(Pos.CENTER);
+		store.setSpacing(10);
+		store.setStyle("-fx-background-color:POWDERBLUE");
+		Scene scene = new Scene(store, x, y);
+		return scene;
+	}
 
 	/**
-	 * Die Methode gibt die Scene für einen Login zurück.
+	 * Die Methode gibt die Scene fï¿½r einen Login zurï¿½ck.
 	 */
 	public Scene setLoginScene() {
 		Scene aktScene = new Scene(new Label(""), x, y);
-		// Überschrift erstellen
+		// ï¿½berschrift erstellen
 		Label headline1 = new Label("Games &");
 		headline1.setFont(new Font("Cambria", 100));
 		headline1.setStyle("-fx-background-color:POWDERBLUE");
@@ -139,11 +185,11 @@ public class Main extends Application {
 	}
 
 	/**
-	 * Erzeugt die GUI, welche die Daten, die für eine Registrierug notwendig sind,
+	 * Erzeugt die GUI, welche die Daten, die fï¿½r eine Registrierug notwendig sind,
 	 * einholt.
 	 */
 	public Scene setRegisterScene() {
-		// Titel ändern
+		// Titel ï¿½ndern
 		mainStage.setTitle("registration");
 		// Seite erzeugen
 		Label headline = new Label("registration");
@@ -169,10 +215,10 @@ public class Main extends Application {
 		registerButton.setStyle(cssStyle);
 		registerButton.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
-				// Passwort und Username dürfen nicht leer sein
+				// Passwort und Username dï¿½rfen nicht leer sein
 				if (inputUsername.getText().equals("") || inputPassword.getText().equals("")) {
 
-					showError("Username und Password dürfen nicht leer sein");
+					showError("Username und Password dï¿½rfen nicht leer sein");
 				} else {
 					client.register(inputUsername.getText(), inputPassword.getText());
 				}
@@ -196,11 +242,11 @@ public class Main extends Application {
 	}
 
 	/**
-	 * Erzeugt die GUI, welche die Daten, die für eine Registrierug notwendig sind,
+	 * Erzeugt die GUI, welche die Daten, die fï¿½r eine Registrierug notwendig sind,
 	 * einholt.
 	 */
 	public Scene setLoginInput() {
-		// Titel ändern
+		// Titel ï¿½ndern
 		mainStage.setTitle("Login");
 		// Seite erzeugen
 		Label headline = new Label("Login");
@@ -227,7 +273,7 @@ public class Main extends Application {
 		registerButton.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent arg0) {
 				if (inputUsername.getText().equals("") || inputPassword.getText().equals("")) {
-					showError("Username und Password dürfen nicht leer sein");
+					showError("Username und Password dï¿½rfen nicht leer sein");
 				} else {
 					client.login(inputUsername.getText(), inputPassword.getText());
 				}
@@ -258,14 +304,14 @@ public class Main extends Application {
 	 * Erzeugt das Main-Menu der Anwendung.
 	 */
 	public Scene setMainMenu() {
-		// Bildschirmgröße aktualisieren
+		// Bildschirmgrï¿½ï¿½e aktualisieren
 		x = 700;
 		y = 500;
 		// Titel aktualisieren
 		mainStage.setTitle("games & friends");
 		// BorderPane einrichten
 		root = new BorderPane();
-		// Überschrift erzeugen
+		// ï¿½berschrift erzeugen
 		headlineStore = new GridPane();
 		headlineStore.setAlignment(Pos.CENTER);
 		headlineLeague = new Label("Loading ..");
@@ -281,7 +327,7 @@ public class Main extends Application {
 		headlineFriends.setAlignment(Pos.CENTER);
 		headlineStore.add(headlineLeague, 0, 0);
 		headlineStore.add(headlineFriends, 1, 0);
-		// Buttons für Freund erzeugen
+		// Buttons fï¿½r Freund erzeugen
 		VBox buttonsFriends = getFriends(null);
 		ScrollPane scroll = new ScrollPane(buttonsFriends);
 		scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -296,7 +342,17 @@ public class Main extends Application {
 		playButton.setMinHeight(y * 0.1);
 		playButton.setMaxHeight(y * 0.1);
 		playButton.setStyle(cssStyle);
-		// Liga verlassen/suchen hinzufügen
+		playButton.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// TODO Auto-generated method stub
+				updateScene(setGameScene("#########", "Waiting For Opponent", false));
+				client.sendStartGame();
+			}
+			
+		});
+		// Liga verlassen/suchen hinzufï¿½gen
 		Button manageLeague = new Button("leave/add");
 		manageLeague.setMinHeight(y * 0.1);
 		manageLeague.setMaxHeight(y * 0.1);
@@ -304,7 +360,7 @@ public class Main extends Application {
 		manageLeague.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
 				System.out.println("aufgerufen: " + headlineLeague.getText());
-				// Prüfen, ob der Spieler in einer Liga ist
+				// Prï¿½fen, ob der Spieler in einer Liga ist
 				if (client.getLeague().equals("keine Liga")) {
 					// Liganamen abfragen
 					System.out.println("aufgerufen");
@@ -328,7 +384,7 @@ public class Main extends Application {
 		HBox buttonsStore = new HBox(subButtonsStore, buttonsRegion1, buttonsRegion2);
 		// Button symmetrisch unter der Liste erzeugen
 		buttonsStore.setPadding(new Insets(y * 0.06, x * 0.3, 20, 0));
-		// Der Wurzel hinzufügen
+		// Der Wurzel hinzufï¿½gen
 		root.setTop(headlineStore);
 		ScrollPane leagueView = new ScrollPane(null);
 		leagueView.setMinHeight(y * 0.6);
@@ -346,15 +402,15 @@ public class Main extends Application {
 	}
 
 	/**
-	 * Stellt alle Freunde als Liste dar. Freunde die online sind können
-	 * herausgefordert werden. Freunde die offline/online sind können als Freunde
+	 * Stellt alle Freunde als Liste dar. Freunde die online sind kï¿½nnen
+	 * herausgefordert werden. Freunde die offline/online sind kï¿½nnen als Freunde
 	 * entfernt werden.
 	 * 
 	 * @return
 	 */
 	public VBox getFriends(List<User> friends) {
 		friendBox = new VBox();
-		// Das Freunde hinzufügen
+		// Das Freunde hinzufï¿½gen
 		HBox add = new HBox();
 		TextField input = new TextField();
 		Button doSearch = new Button("add");
@@ -385,7 +441,7 @@ public class Main extends Application {
 			return friendBox;
 		}
 		friends.toFirst();
-		// Für jeden Freund einen Button erzeugen
+		// Fï¿½r jeden Freund einen Button erzeugen
 		while (friends.hasAccess()) {
 			Button aktButton = new Button(friends.getContent().getUsername());
 			aktButton.setMinWidth(x * 0.3);
@@ -408,7 +464,7 @@ public class Main extends Application {
 					}
 				}
 			});
-			// Prüfen, ob freund online ist
+			// Prï¿½fen, ob freund online ist
 			if (friends.getContent().isOnline()) {
 				aktButton.setStyle(cssFriendGreen);
 			} else {
@@ -426,7 +482,7 @@ public class Main extends Application {
 
 	/**
 	 * Erzeugt eine Darstellung der Liga in Tabellenform. Mitglieder der Liga die
-	 * Online sind, werden grün angezeigt und können herausgefordert werden.
+	 * Online sind, werden grï¿½n angezeigt und kï¿½nnen herausgefordert werden.
 	 * 
 	 * @return
 	 */
@@ -479,7 +535,7 @@ public class Main extends Application {
 			return leagueBox;
 		}
 		names.toFirst();
-		// Für jede Liga einen Button erzeugen
+		// Fï¿½r jede Liga einen Button erzeugen
 		while (names.hasAccess()) {
 			Button aktButton = new Button(names.getContent());
 			aktButton.setMinWidth(x * 0.7);
@@ -527,7 +583,7 @@ public class Main extends Application {
 
 	/**
 	 * Freunde aus der Datenbank hinzuholen. Die Freunde die online sind zuerst
-	 * hinzufügen. Anfrage an den Server schicken. .
+	 * hinzufï¿½gen. Anfrage an den Server schicken. .
 	 * 
 	 * @return
 	 */

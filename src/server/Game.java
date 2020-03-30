@@ -16,10 +16,12 @@ public class Game {
 	public Game(Player pPlayer1, Player pPlayer2) {
 		players[0] = pPlayer1;
 		players[1] = pPlayer2;
+		players[0].symbol = 'x';
+		players[1].symbol = 'o';
 	}
 
 	public boolean turn(Player currentPlayer, int[] move) {
-		return this.board.setField(move[1], move[0], currentPlayer.symbol);
+		return this.board.setField(move[0], move[1], currentPlayer.symbol);
 	}
 	
 	public Player[] getPlayers() {

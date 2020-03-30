@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 
 public class GameServer extends Server {
 
-	private List<User> onlineUser;
 	private DatabaseExecuter db;
 	private List<Player> onlinePlayers;
 	private List<Player> waitingPlayers;
@@ -17,7 +16,6 @@ public class GameServer extends Server {
 	public GameServer(int pPort) {
 		super(pPort);
 		// Liste fï¿½r User die online sind initialisieren
-		onlineUser = new List<User>();
 		onlinePlayers = new List<Player>();
 		waitingPlayers = new List<Player>();
 		runningGames = new List<Game>();
@@ -47,7 +45,8 @@ public class GameServer extends Server {
 			//Login-erfolgreich
 			if(res == 1) {
 				//Zu online-Liste zufï¿½gen
-				onlineUser.append(new User(msg[1], true, pClientIP, pClientPort));
+				onlinePlayers.append(new Player(msg[1], pClientIP + ":" + pClientPort));
+				System.out.println("added online");
 				this.send(pClientIP, pClientPort, "1:Anmeldung erfolgreich:" + msg[1]);
 				//alle Ligamitglieder und Freunde auffordern neu zu laden
 				this.askForFriends(msg);
@@ -86,7 +85,7 @@ public class GameServer extends Server {
 				names.toFirst();
 				List<String> sortedList = new List<String>();
 				while(names.hasAccess()) {
-					if(userOnline(names.getContent())) {
+					if(isPlayerOnline(names.getContent())) {
 						sortedList.toFirst();
 						sortedList.insert(names.getContent()+ ";1");
 					}else {
@@ -107,10 +106,10 @@ public class GameServer extends Server {
 			String result = db.addFriendship(msg[1], msg[2]);
             //Wenn die Freundschaft hinzugefuegt wurde
             if(result.equals("Freundschaft hinzugefuegt")){
-                //Prüfen ob neuer Freund online
-                User tmp = getOnlineUser(msg[2]);
+                //Prï¿½fen ob neuer Freund online
+                Player tmp = getPlayerIfOnline(msg[2]);
                 if(tmp != null){
-                    this.send(tmp.getIp(), tmp.getPort(),"3:fordere Freunde");
+                    this.send(tmp.getConnection().split(":")[0], Integer.parseInt(tmp.getConnection().split(":")[1]), "3:fordere Freunde");
                 }
                 this.send(pClientIP, pClientPort, "3:fordere Freunde");
             }else{
@@ -133,7 +132,7 @@ public class GameServer extends Server {
 						names.toFirst();
 						while(names.hasAccess()) {
 							String tmp = "";
-							if(userOnline(names.getContent().split(";")[0])) {
+							if(isPlayerOnline(names.getContent().split(";")[0])) {
 								tmp = names.getContent() + ";1";
 							}else {
 								tmp = names.getContent() + ";0";
@@ -154,14 +153,14 @@ public class GameServer extends Server {
 			if(leagueName != null) {
 				this.send(pClientIP, pClientPort, "8:Liga verlassen");
 				//Alle Mitglieder der Liga aktualisieren
-				onlineUser.toFirst();
-				while(onlineUser.hasAccess()) {
+				onlinePlayers.toFirst();
+				while(onlinePlayers.hasAccess()) {
 					//Prï¿½fen, ob sie in der gleichen Liga spielen
-					if(db.getLeagueNameFromUsername(onlineUser.getContent().getUsername()).equals(leagueName)){
+					if(db.getLeagueNameFromUsername(onlinePlayers.getContent().getUsername()).equals(leagueName)){
 						//User auffordern Liga zu laden
-						this.send(onlineUser.getContent().getIp(), onlineUser.getContent().getPort(), "8:Lade Liga");
+						this.send(onlinePlayers.getContent().getConnection().split(":")[0], Integer.parseInt(onlinePlayers.getContent().getConnection().split(":")[1]), "8:Lade Liga");
 					}
-					onlineUser.next();
+					onlinePlayers.next();
 				}
 			}else {
 				this.send(pClientIP, pClientPort, "8:Fehler beim Verlassen der Liga");
@@ -171,17 +170,19 @@ public class GameServer extends Server {
 			if(db.removeFriendship(msg[1], msg[2])) {
 				this.send(pClientIP, pClientPort, "5:Freund entfernt");
 				//Wenn der andere User online ist
-				User exfriend = getOnlineUser(msg[2]);
+				Player exfriend = getPlayerIfOnline(msg[2]);
 				if(exfriend != null) {
-					this.send(exfriend.getIp(), exfriend.getPort(), "3:fordere Freunde");
+					this.send(onlinePlayers.getContent().getConnection().split(":")[0], Integer.parseInt(onlinePlayers.getContent().getConnection().split(":")[1]), "3:fordere Freunde");
 				}
 			}else {
 				this.send(pClientIP, pClientPort, "5:Fehler beim Entfernen des Freundes");
 			}
 		}else if (msg[0].equals("START_GAME")) {
+			System.out.println("rtyjghjkk");
 		    onlinePlayers.toFirst();
 		    while(onlinePlayers.hasAccess()) {
 		    	//Wenn der User online ist
+		    	System.out.println(onlinePlayers.getContent());
 		    	if(onlinePlayers.getContent().getConnection().equals(pClientIP+":"+pClientPort)) {
 		    		waitingPlayers.append(onlinePlayers.getContent());
 		    		break;
@@ -193,17 +194,22 @@ public class GameServer extends Server {
 		    while(waitingPlayers.hasAccess()) {
 		    	//Wenn der User online ist
 		    	numberOfWaitingPlayers++;
+		    	System.out.println(waitingPlayers.getContent().getUsername());
 		    	waitingPlayers.next();
 		    }
 		    if (numberOfWaitingPlayers >= 2) {
 		    	waitingPlayers.toFirst();
 		    	Player player1 = waitingPlayers.getContent();
-		    	waitingPlayers.next();
+		    	waitingPlayers.remove();
 		    	Player player2 = waitingPlayers.getContent();
+		    	waitingPlayers.remove();
 		    	Game newGame = new Game(player1, player2);
 		    	runningGames.append(newGame);
-	    		send(player1.getConnection().split(":")[0], Integer.parseInt(player1.getConnection().split(":")[1]), "GAME_STARTED:true");
-	    		send(player2.getConnection().split(":")[0], Integer.parseInt(player2.getConnection().split(":")[1]), "GAME_STARTED:false");
+		    	System.out.println("starting game");
+		    	System.out.println(player1.getConnection().split(":")[0]);
+		    	System.out.println(Integer.parseInt(player1.getConnection().split(":")[1]));
+	    		send(player1.getConnection().split(":")[0], Integer.parseInt(player1.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":true");
+	    		send(player2.getConnection().split(":")[0], Integer.parseInt(player2.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":false");
 		    }
 		}else if(msg[0].equals("GET_ALL_LEAGUES")) {
 			List<String> names = db.getLeagues();
@@ -230,15 +236,18 @@ public class GameServer extends Server {
 			}
 		}else if (msg[0].equals("TURN")) {
 		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
+		    System.out.println(msg[1] + msg[2]);
 		    runningGames.toFirst();
 		    while(runningGames.hasAccess()) {
 		    	Game game = runningGames.getContent();
 		    	for (Player player: game.getPlayers()) {
 			    	if (player.getConnection().equals(pClientIP+":"+pClientPort)) {
 			    		game.turn(player, coords);
+			    		System.out.println("turned");
 			    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
 			    	}
 			    	else {
+			    		System.out.println("not turned");
 			    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
 			    	}
 		    	}
@@ -261,28 +270,28 @@ public class GameServer extends Server {
 	 * @param pName
 	 * @return
 	 */
-	public boolean userOnline(String pName) {
-		onlineUser.toFirst();
-		while (onlineUser.hasAccess()) {
+	public boolean isPlayerOnline(String pName) {
+		onlinePlayers.toFirst();
+		while (onlinePlayers.hasAccess()) {
 			// Wenn der User online ist
-			if (onlineUser.getContent().getUsername().equals(pName)) {
+			if (onlinePlayers.getContent().getUsername().equals(pName)) {
 				return true;
 			}
-			onlineUser.next();
+			onlinePlayers.next();
 		}
 		return false;
 	}
 
 	public void askForFriends(String[] msg) {
-		List<String> allUsers = db.getFriends(msg[1]);
-		allUsers.toFirst();
-		while (allUsers.hasAccess()) {
-			if (userOnline(allUsers.getContent())) {
-				User aktUser = getOnlineUser(allUsers.getContent());
+		List<String> allPlayers = db.getFriends(msg[1]);
+		allPlayers.toFirst();
+		while (allPlayers.hasAccess()) {
+			if (isPlayerOnline(allPlayers.getContent())) {
+				Player aktPlayer = getPlayerIfOnline(allPlayers.getContent());
 				// Aufforderung schicken
-				this.send(aktUser.getIp(), aktUser.getPort(), "3:fordere Freunde");
+				this.send(aktPlayer.getConnection().split(":")[0], Integer.parseInt(aktPlayer.getConnection().split(":")[1]), "3:fordere Freunde");
 			}
-			allUsers.next();
+			allPlayers.next();
 		}
 	}
 
@@ -292,9 +301,9 @@ public class GameServer extends Server {
 		member.toFirst();
 		while(member.hasAccess()) {
 			//Wenn der User online ist
-			if(userOnline(member.getContent().split(";")[0])) {
-				User aktUser = getOnlineUser(member.getContent().split(";")[0]);
-				this.send(aktUser.getIp(), aktUser.getPort(), "8:Lade Liga");
+			if(isPlayerOnline(member.getContent().split(";")[0])) {
+				Player aktUser = getPlayerIfOnline(member.getContent().split(";")[0]);
+				this.send(aktUser.getConnection().split(":")[0], Integer.parseInt(aktUser.getConnection().split(":")[1]), "8:Lade Liga");
 			}
 			member.next();
 		}
@@ -307,13 +316,13 @@ public class GameServer extends Server {
 	 * @param pUsername
 	 * @return
 	 */
-	public User getOnlineUser(String pUsername) {
-		this.onlineUser.toFirst();
-		while (this.onlineUser.hasAccess()) {
-			if (this.onlineUser.getContent().getUsername().equals(pUsername)) {
-				return this.onlineUser.getContent();
+	public Player getPlayerIfOnline(String pUsername) {
+		this.onlinePlayers.toFirst();
+		while (this.onlinePlayers.hasAccess()) {
+			if (this.onlinePlayers.getContent().getUsername().equals(pUsername)) {
+				return this.onlinePlayers.getContent();
 			}
-			this.onlineUser.next();
+			this.onlinePlayers.next();
 		}
 		return null;
 	}
