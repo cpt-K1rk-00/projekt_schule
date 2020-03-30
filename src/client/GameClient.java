@@ -15,7 +15,7 @@ import javafx.scene.text.Font;
 /**
 * Die Klasse dient der Kommunikation zwischen dem Server und der GUI.
 * In der Process Message Methode werden die Daten empfangen, die dann gegebenfalls lokal 
-* gespeichert werden müssen.
+* gespeichert werden mï¿½ssen.
 */
 public class GameClient extends Client{
 	
@@ -27,7 +27,7 @@ public class GameClient extends Client{
 	private String username;
 	
 	public GameClient(Main gui) {
-		//später anpassen
+		//spï¿½ter anpassen
 		super("localhost", 9999);
 		this.gui = gui;
 		this.login = false;
@@ -61,7 +61,7 @@ public class GameClient extends Client{
 		}else if(msg[0].equals("2")) {
 			//Bei erfolgreicher Registrierung
 			if(msg[1].equals("Registrierung erfolgreich")) {
-				//Login durchführen
+				//Login durchfï¿½hren
 				login(msg[2],msg[3]);
 			//Wenn der Nutzername bereits vergeben ist
 			}else if(msg[1].equals("Nutzername bereits vergeben")) {
@@ -108,7 +108,7 @@ public class GameClient extends Client{
 		}else if(msg[0].equals("4")){
 			//wenn es keine Fehler gab
 			if(msg[1].equals("Laden erfolgreich")) {
-				//Prüfen, ob er einer Liga beigetreten ist
+				//Prï¿½fen, ob er einer Liga beigetreten ist
 				if(msg[2].equals("keine Liga")) {
 					this.league = "keine Liga";
 					changeHeadline("keine Liga");
@@ -185,6 +185,9 @@ public class GameClient extends Client{
 				});
 			}
 		}
+		else if (msg[0] == "") {
+			
+		}
 	}
 	
 	public void changeHeadline(String headline) {
@@ -218,7 +221,7 @@ public class GameClient extends Client{
 	}
 	
 	/**
-	 * Führt der Registrierungsvorgang durch.
+	 * Fï¿½hrt der Registrierungsvorgang durch.
 	 * @param pUsername
 	 * @param pPasswort
 	 */
@@ -235,7 +238,7 @@ public class GameClient extends Client{
 	}
 	
 	/**
-	 * Fügt einen Freund hinzu.
+	 * Fï¿½gt einen Freund hinzu.
 	 * @param pUsername
 	 */
 	public void addFriend(String pUsername) {
@@ -252,7 +255,7 @@ public class GameClient extends Client{
 	}
 	
 	/**
-	 * Stellt eine Anfrage an einen Spieler und prüft, ob dieser online ist.
+	 * Stellt eine Anfrage an einen Spieler und prï¿½ft, ob dieser online ist.
 	 * @param pUsername
 	 * @param secondPlayer
 	 */
@@ -261,7 +264,7 @@ public class GameClient extends Client{
 	}
 	
 	/**
-	 * Fügt die Namen der Datei zurück
+	 * Fï¿½gt die Namen der Datei zurï¿½ck
 	 * @param pUsername
 	 */
 	public void playRandom(String pUsername) {
@@ -269,7 +272,7 @@ public class GameClient extends Client{
 	}
 	
 	/**
-	 * Verlässt die Liga
+	 * Verlï¿½sst die Liga
 	 * @param pUsername
 	 */
 	public void leaveLeague() {

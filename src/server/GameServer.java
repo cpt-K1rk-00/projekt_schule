@@ -190,6 +190,8 @@ public class GameServer extends Server {
 		    	Player player2 = waitingPlayers.getContent();
 		    	Game newGame = new Game(player1, player2);
 		    	runningGames.append(newGame);
+	    		send(player1.getConnection().split(":")[0], Integer.parseInt(player1.getConnection().split(":")[1]), "GAME_STARTED:true");
+	    		send(player2.getConnection().split(":")[0], Integer.parseInt(player2.getConnection().split(":")[1]), "GAME_STARTED:false");
 		    }
 		}else if(msg[0].equals("GET_ALL_LEAGUES")) {
 			List<String> names = db.getLeagues();
@@ -218,16 +220,18 @@ public class GameServer extends Server {
 		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
 		    runningGames.toFirst();
 		    while(runningGames.hasAccess()) {
-		    	for (Player player: runningGames.getContent().getPlayers()) {
+		    	Game game = runningGames.getContent();
+		    	for (Player player: game.getPlayers()) {
 			    	if (player.getConnection().equals(pClientIP+":"+pClientPort)) {
-			    		runningGames.getContent().turn(player, coords);
-			    		for (Player player_tmp: runningGames.getContent().getPlayers()) {
-				    		send(player_tmp.getConnection().split(":")[0], Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
-				    				"PLAYER_TURN_RESPONSE:"+runningGames.getContent().getWinner()+":"+runningGames.getContent().getBoardAsString());
-			    		}
-			    		break;
+			    		game.turn(player, coords);
+			    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
 			    	}
-			    	break;
+			    	else {
+			    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
+			    	}
+		    	}
+		    	if (runningGames.getContent().isFinished()) {
+		    		runningGames.remove();
 		    	}
 		    	runningGames.next();
 		   }
