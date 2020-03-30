@@ -37,4 +37,14 @@ public class Game {
 	public boolean isTied() {
 		return board.isTied();
 	}
+	
+	public String getBoardAsString() {
+		String ret = "";
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
+				ret += board.getField(x, y);
+			}
+		}
+		return ret;
+	}
 }

@@ -7,10 +7,10 @@ package server;
  */
 public class TreeMaker
 {
-   private Node<Field> parent;
+   private Node<Board> parent;
    
    public TreeMaker(){
-       setParent(new Node<Field>(new Field()));
+       setParent(new Node<Board>(new Board()));
        char[][] board = new char[3][3];
        System.out.println(board);
        for (int y = 0; y < 3; y++) {
@@ -18,27 +18,27 @@ public class TreeMaker
 				board[y][x] = '#';
 			}
        }
-       this.parent.getData().setField(board);
+       this.parent.getData().setBoard(board);
    }
    
    /**
     * F�gt alle neue M�glichkeiten hinzu.
     */
-   public void addNewLeafs(Node<Field> aktNode, char sign){
+   public void addNewLeafs(Node<Board> aktNode, char sign){
        for(int x = 0; x < 3; x++){
            for(int y = 0; y < 3; y++){
                //Neue M�glichkeit hinzuf�gen
-               char[][] aktField = aktNode.getData().getBaord();
+               char[][] aktBoard = aktNode.getData().getBaord();
                //pr�fen, ob das Feld frei ist
-               if(aktField[y][x] == '#'){
+               if(aktBoard[y][x] == '#'){
                    //Zug setzen
-                   aktField[y][x] = sign;
+            	   aktBoard[y][x] = sign;
                    //Neues Feld als Kind hinzuf�gen, wenn nicht Sieg oder unentschieden
-                   Field field = new Field();
-                   field.setField(aktField);
+                   Board board = new Board();
+                   board.setBoard(aktBoard);
                    //Pr�fen, ob das aktuelle Feld ein weiteres Spielen m�glich macht
                    if(true) {
-                	  aktNode.addChild(new Node<Field>(field));
+                	  aktNode.addChild(new Node<Board>(board));
                 	  if(sign == 'x') {
                 		  aktNode.getChildren().toLast();
                 		  addNewLeafs(aktNode.getChildren().getContent(), 'o');
@@ -56,7 +56,7 @@ public class TreeMaker
 	   addNewLeafs(this.parent, 'x');
    }
    
-   public void travTree(Node<Field> aktNode) {
+   public void travTree(Node<Board> aktNode) {
 	   //Ausgabe
 	   for(int i = 0; i < aktNode.getData().getBaord().length; i++) {
 		   for(int j = 0; j < aktNode.getData().getBaord().length; j++) {
@@ -67,7 +67,7 @@ public class TreeMaker
 	   System.out.println();
 	   System.out.println();
 	   //Rekursion
-	   List<Node<Field>> children = aktNode.getChildren();
+	   List<Node<Board>> children = aktNode.getChildren();
 	   children.toFirst();
 	   while(children.hasAccess()) {
 		   travTree(children.getContent());
@@ -79,11 +79,11 @@ public class TreeMaker
 	   travTree(this.parent);
    }
 
-   public Node<Field> getParent() {
+   public Node<Board> getParent() {
 	   return parent;
    }
 
-   public void setParent(Node<Field> parent) {
+   public void setParent(Node<Board> parent) {
 	   this.parent = parent;
    }
    

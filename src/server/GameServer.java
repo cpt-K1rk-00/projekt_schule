@@ -16,7 +16,7 @@ public class GameServer extends Server {
 
 	public GameServer(int pPort) {
 		super(pPort);
-		// Liste für User die online sind initialisieren
+		// Liste fï¿½r User die online sind initialisieren
 		onlineUser = new List<User>();
 		onlinePlayers = new List<Player>();
 		waitingPlayers = new List<Player>();
@@ -40,13 +40,13 @@ public class GameServer extends Server {
 	public void processMessage(String pClientIP, int pClientPort, String pMessage) {
 		
 		String[] msg = pMessage.split(":");
-		//Für Login Vorgang
+		//Fï¿½r Login Vorgang
 		if(msg[0].equals("LOGIN")) {
-			//Anmeldedaten prüfen
+			//Anmeldedaten prï¿½fen
 			int res = db.login(msg[1], msg[2]);
 			//Login-erfolgreich
 			if(res == 1) {
-				//Zu online-Liste zufügen
+				//Zu online-Liste zufï¿½gen
 				onlineUser.append(new User(msg[1], true, pClientIP, pClientPort));
 				this.send(pClientIP, pClientPort, "1:Anmeldung erfolgreich:" + msg[1]);
 				//alle Ligamitglieder und Freunde auffordern neu zu laden
@@ -59,9 +59,9 @@ public class GameServer extends Server {
 			}else if(res == -1) {
 				this.send(pClientIP, pClientPort, "1:Fehler bei Anmeldung");
 			}
-		//Für Registrierungs Vorgang
+		//Fï¿½r Registrierungs Vorgang
 		}else if(msg[0].equals("REGISTER")) {
-			//Registrierung prüfen
+			//Registrierung prï¿½fen
 			String res = db.register(msg[1], msg[2]);
 			//Wenn die Registrierung erfolgreich war
 			if(res.equals("Username eingefuegt")) {
@@ -73,7 +73,7 @@ public class GameServer extends Server {
 			}else if(res.equals("Fehler beim Einfuegen des Users")) {
 				this.send(pClientIP, pClientPort, "2:Fehler bei Registrierung");
 			}
-		//Für Anforderung der Freunde
+		//Fï¿½r Anforderung der Freunde
 		}else if(msg[0].equals("GET_FRIENDS")) {
 			List<String> names = db.getFriends(msg[1]);
 			//Wenn es einen Fehler gab
@@ -81,7 +81,7 @@ public class GameServer extends Server {
 				this.send(pClientIP, pClientPort, "3:Fehler beim Laden der Datei");
 			//Wenn es keinen Fehler gab
 			}else {
-				//Prüfen, ob User online ist
+				//Prï¿½fen, ob User online ist
 				String result = "";
 				names.toFirst();
 				List<String> sortedList = new List<String>();
@@ -102,7 +102,7 @@ public class GameServer extends Server {
 				this.send(pClientIP, pClientPort, "3:Laden erfolgreich" + result);
 			
 			}
-		//Freund hinzufügen
+		//Freund hinzufï¿½gen
 		}else if(msg[0].equals("ADD_FRIEND")) {
 			
 		//Mitglieder der Liga laden
@@ -131,7 +131,7 @@ public class GameServer extends Server {
 						}
 						this.send(pClientIP, pClientPort, "4:Laden erfolgreich:" + leagueName + result);
 					}else {
-						//Fehlermeldung zurückgeben
+						//Fehlermeldung zurï¿½ckgeben
 						this.send(pClientIP, pClientPort, "4:Fehler beim Laden der Mitglieder");
 					}
 				}
@@ -144,7 +144,7 @@ public class GameServer extends Server {
 				//Alle Mitglieder der Liga aktualisieren
 				onlineUser.toFirst();
 				while(onlineUser.hasAccess()) {
-					//Prüfen, ob sie in der gleichen Liga spielen
+					//Prï¿½fen, ob sie in der gleichen Liga spielen
 					if(db.getLeagueNameFromUsername(onlineUser.getContent().getUsername()).equals(leagueName)){
 						//User auffordern Liga zu laden
 						this.send(onlineUser.getContent().getIp(), onlineUser.getContent().getPort(), "8:Lade Liga");
@@ -218,39 +218,29 @@ public class GameServer extends Server {
 		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
 		    runningGames.toFirst();
 		    while(runningGames.hasAccess()) {
-		    	//Wenn der User online ist
-		    	if (runningGames.getContent().getPlayers()[0].getConnection().equals(pClientIP+":"+pClientPort)) {
-		    		runningGames.getContent().turn(runningGames.getContent().getPlayers()[0], coords);
-		    		send(runningGames.getContent().getPlayers()[0].getConnection().split(":")[0],
-		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
-		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
-		    		send(runningGames.getContent().getPlayers()[1].getConnection().split(":")[0],
-		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
-		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
-		    		break;
-		    	}
-		    	if (runningGames.getContent().getPlayers()[1].getConnection().equals(pClientIP+":"+pClientPort)) {
-		    		runningGames.getContent().turn(runningGames.getContent().getPlayers()[1], coords);
-		    		send(runningGames.getContent().getPlayers()[0].getConnection().split(":")[0],
-		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
-		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
-		    		send(runningGames.getContent().getPlayers()[1].getConnection().split(":")[0],
-		    				Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
-		    				"PLAYER_TURN_RESPONSE:"+msg[1]+":"+msg[2]);
-		    		break;
+		    	for (Player player: runningGames.getContent().getPlayers()) {
+			    	if (player.getConnection().equals(pClientIP+":"+pClientPort)) {
+			    		runningGames.getContent().turn(player, coords);
+			    		for (Player player_tmp: runningGames.getContent().getPlayers()) {
+				    		send(player_tmp.getConnection().split(":")[0], Integer.parseInt(runningGames.getContent().getPlayers()[0].getConnection().split(":")[1]),
+				    				"PLAYER_TURN_RESPONSE:"+runningGames.getContent().getWinner()+":"+runningGames.getContent().getBoardAsString());
+			    		}
+			    		break;
+			    	}
+			    	break;
 		    	}
 		    	runningGames.next();
 		   }
 		}else{
-			// Fehlermeldung zurückgeben
+			// Fehlermeldung zurï¿½ckgeben
 			this.send(pClientIP, pClientPort, "4:Username nicht erkannt");
 		}
 	}
 
 	/**
-	 * Prüft, ob der Name des Spielers in der Liste mit den Spielern, die online
-	 * sind, enthalten ist. Ist dies der Fall, dann wird true zurückgegeben. Sonst
-	 * wird false zurückgegeben.
+	 * Prï¿½ft, ob der Name des Spielers in der Liste mit den Spielern, die online
+	 * sind, enthalten ist. Ist dies der Fall, dann wird true zurï¿½ckgegeben. Sonst
+	 * wird false zurï¿½ckgegeben.
 	 * 
 	 * @param pName
 	 * @return
@@ -295,8 +285,8 @@ public class GameServer extends Server {
 	}
 
 	/**
-	 * Gibt das passende Userobjekt zu einem Usernamen zurück. Ist der User nicht
-	 * online wird null zurückgegeben.
+	 * Gibt das passende Userobjekt zu einem Usernamen zurï¿½ck. Ist der User nicht
+	 * online wird null zurï¿½ckgegeben.
 	 * 
 	 * @param pUsername
 	 * @return
@@ -322,7 +312,7 @@ public class GameServer extends Server {
 	}
 
 	/**
-	 * Ändert die Liga-Headline.
+	 * ï¿½ndert die Liga-Headline.
 	 */
 	public void changeLeagueHeadline() {
 

@@ -22,6 +22,11 @@ public class Board
 		}
     }
     
+public void setBoard(char[][] pBoard){
+    	
+        board = pBoard;
+    }
+    
     public char[][] getBaord(){
     	
         char[][] result = new char[3][3];
@@ -42,7 +47,10 @@ public class Board
     		return true;
     	}
     	return false;
-    	
+    }
+    
+    public char getField(int x, int y) {
+    	return board[y][x];
     }
     
     public boolean isFinished(){
