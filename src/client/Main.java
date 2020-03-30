@@ -105,14 +105,12 @@ public class Main extends Application {
 				else {
 					board[y][x].setText(""+symbol);
 				}
-				System.out.println(boardAsString);
 				board[y][x].setLayoutX(pX + pW * x);
 				board[y][x].setLayoutY(pY + pH * y);
 				board[y][x].setPrefWidth(pW);
 				board[y][x].setPrefHeight(pH);
 				
 				board[y][x].setOnAction(e -> {
-					System.out.println("btn");
 					client.sendTurn(tmpX, tmpY);
 				});
 			}
@@ -359,11 +357,9 @@ public class Main extends Application {
 		manageLeague.setStyle(cssStyle);
 		manageLeague.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
-				System.out.println("aufgerufen: " + headlineLeague.getText());
 				// Pr�fen, ob der Spieler in einer Liga ist
 				if (client.getLeague().equals("keine Liga")) {
 					// Liganamen abfragen
-					System.out.println("aufgerufen");
 					client.getAllLeagues();
 				} else {
 					client.leaveLeague();

@@ -44,18 +44,15 @@ public class DatabaseExecuter {
 				if(result.getRowCount() == 1) {
 					con.close();
 					if (auth.authenticate(pPassword.toCharArray(), result.getData()[0][0])) {
-						System.out.println("lgin");
 						return 1;
 					}
 				}
-				System.out.println("not");
 				return 0;
 			}else {
 				System.out.println(con.getErrorMessage());
 				con.close();
 			}
 		}
-		System.out.println("broke");
 		return -1;
 	}
 	
@@ -70,7 +67,6 @@ public class DatabaseExecuter {
 	public String register(String pUsername, String pPassword) {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehler gab
-		System.out.println("asdfghj");
 		if(con != null) {
 			con.executeStatement("SELECT username FROM users WHERE username LIKE '" + pUsername + "'");
 			//Prï¿½fen, ob es keinen Fehler gab
@@ -295,7 +291,6 @@ public class DatabaseExecuter {
 			con.executeStatement("UPDATE `users` SET `liga_id` = '1' WHERE `users`.`user_id` = (SELECT `liga_id` FROM `ligen` WHERE ligen.name LIKE'" + pLeagueName + "')");
 			//Wenn es keine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
-				System.out.println(2);
 				return true;
 			}else {
 				System.out.println(con.getErrorMessage());
@@ -311,7 +306,6 @@ public class DatabaseExecuter {
 			con.executeStatement("UPDATE `users` SET `liga_punkte` = 'liga_punkte + 3 WHERE `users`.`user_id` = (SELECT `liga_id` FROM `ligen` WHERE ligen.name LIKE'" + pUsername + "')");
 			//Wenn es keine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
-				System.out.println(2);
 				return true;
 			}else {
 				System.out.println(con.getErrorMessage());

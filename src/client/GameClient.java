@@ -129,7 +129,6 @@ public class GameClient extends Client{
 			}else if(msg[1].equals("Lade Liga")) {
 				//Wenn bereits eingelogt
 				if(login) {
-					System.out.println("gib gas du nutte");
 					this.loadLeague(this.username);
 				}
 			}
@@ -160,9 +159,7 @@ public class GameClient extends Client{
 				Platform.runLater(new Runnable() {public void run() {gui.getRoot().setCenter(null);}});
 			}
 		}else if(msg[0].equals("10")) {
-			System.out.println("msg:" + msg[1]);
 			if(msg[1].equals("Liga beigetreten")){
-				System.out.println(2);
 				this.loadLeague(this.username);
 			}else {
 				Platform.runLater(new Runnable(){public void run() {gui.showError("Fehler beim Beitritt der Liga");}});
@@ -192,7 +189,6 @@ public class GameClient extends Client{
 			String winner = msg[1];
 			String boardAsString = msg[2];
 			boolean yourTurn = msg[3] == "true";
-			System.out.println("asdfgtrdfvtf");
 			Platform.runLater(new Runnable() {
 				
 				@Override
@@ -214,7 +210,6 @@ public class GameClient extends Client{
 			});
 			
 		}
-		System.out.println(msg[0]);
 	}
 	
 	public void sendTurn(int pX, int pY) {
@@ -228,7 +223,6 @@ public class GameClient extends Client{
 	public void changeHeadline(String headline) {
 		Platform.runLater(new Runnable() {
 			public void run() {
-				System.out.println("aufgerufen");
 				Label headlineLabel = new Label(headline);
 				headlineLabel.setFont(new Font("Cambria", 50));
 				headlineLabel.setMinHeight(gui.getY() * 0.2);

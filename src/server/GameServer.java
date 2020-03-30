@@ -20,7 +20,6 @@ public class GameServer extends Server {
         waitingPlayers = new List<Player>();
         runningGames = new List<Game>();
         db = new DatabaseExecuter();
-        System.out.println("start");
     }
 
     @Override
@@ -42,11 +41,18 @@ public class GameServer extends Server {
         if(msg[0].equals("LOGIN")) {
             //Anmeldedaten pr�fen
             int res = db.login(msg[1], msg[2]);
+            onlinePlayers.toFirst();
+            while (onlinePlayers.hasAccess()) {
+            	if (onlinePlayers.getContent().getUsername().contentEquals(msg[1])) {
+            		this.send(pClientIP, pClientPort, "1:Fehler bei Anmeldung");
+            		return;
+            	}
+            	onlinePlayers.next();
+            }
             //Login-erfolgreich
             if(res == 1) {
                 //Zu online-Liste zuf�gen
                 onlinePlayers.append(new Player(msg[1], pClientIP + ":" + pClientPort));
-                System.out.println("added online");
                 this.send(pClientIP, pClientPort, "1:Anmeldung erfolgreich:" + msg[1]);
                 //alle Ligamitglieder und Freunde auffordern neu zu laden
                 this.askForFriends(msg);
@@ -62,7 +68,6 @@ public class GameServer extends Server {
         }else if(msg[0].equals("REGISTER")) {
             //Registrierung pr�fen
             String res = db.register(msg[1], msg[2]);
-            System.out.print(1 + res);
             //Wenn die Registrierung erfolgreich war
             if(res.equals("Username eingefuegt")) {
                 this.send(pClientIP, pClientPort, "2:Registrierung erfolgreich:" + msg[1] + ":" + msg[2]);
@@ -179,13 +184,11 @@ public class GameServer extends Server {
 				this.send(pClientIP, pClientPort, "5:Fehler beim Entfernen des Freundes");
 			}
 		}else if (msg[0].equals("START_GAME")) {
-			System.out.println("rtyjghjkk");
 		    onlinePlayers.toFirst();
 		    String playerLeague = null;
 		    Player player = null;
 		    while(onlinePlayers.hasAccess()) {
 		    	//Wenn der User online ist
-		    	System.out.println(onlinePlayers.getContent());
 		    	if(onlinePlayers.getContent().getConnection().equals(pClientIP+":"+pClientPort)) {
 		    		waitingPlayers.append(onlinePlayers.getContent());
 		    		player = onlinePlayers.getContent();
@@ -210,9 +213,6 @@ public class GameServer extends Server {
 		    	waitingPlayers.remove();
 		    	Game newGame = new Game(player, opponent);
 		    	runningGames.append(newGame);
-		    	System.out.println("starting game");
-		    	System.out.println(player.getConnection().split(":")[0]);
-		    	System.out.println(Integer.parseInt(player.getConnection().split(":")[1]));
 	    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":true");
 	    		send(opponent.getConnection().split(":")[0], Integer.parseInt(opponent.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":false");
 		    }
@@ -232,7 +232,6 @@ public class GameServer extends Server {
 				this.send(pClientIP, pClientPort, "12:Fehler beim laden der Ligen");
 			}
 		} else if(msg[0].equals("JOIN_LEAGUE")){
-			System.out.println(1);
 			//Der Liga beitreten
 			if(db.joinLeague(msg[1])) {
 				this.send(pClientIP, pClientPort, "10:Liga beigetreten");
@@ -241,18 +240,15 @@ public class GameServer extends Server {
 			}
 		}else if (msg[0].equals("TURN")) {
 		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
-		    System.out.println(msg[1] + msg[2]);
 		    runningGames.toFirst();
 		    while(runningGames.hasAccess()) {
 		    	Game game = runningGames.getContent();
 		    	for (Player player: game.getPlayers()) {
 			    	if (player.getConnection().equals(pClientIP+":"+pClientPort)) {
 			    		game.turn(player, coords);
-			    		System.out.println("turned");
 			    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
 			    	}
 			    	else {
-			    		System.out.println("not turned");
 			    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
 			    	}
 		    	}
