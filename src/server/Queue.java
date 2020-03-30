@@ -1,4 +1,4 @@
-package server;
+ 
 
 /**
  * Die generische Klasse Queue<ContentType>

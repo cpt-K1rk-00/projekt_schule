@@ -1,4 +1,4 @@
-package server;
+ 
 
 /**
  * Beschreiben Sie hier die Klasse Player.

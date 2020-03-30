@@ -1,4 +1,4 @@
-package server;
+ 
 
 /**
  * Die Klasse dient als Schnittstelle zu der Klasse DatabaseConnectorMySQL und fï¿½hrt Vorgï¿½nge, wie den
@@ -88,11 +88,11 @@ public class DatabaseExecuter {
 					return "Fehler beim Einfuegen des Users";
 				}
 				int id = Integer.parseInt(con.getCurrentQueryResult().getData()[0][0]) + 1; 
-				con.executeStatement("INSERT INTO users (user_id, username, password, online, liga_id, liga_punkte) VALUES (" + id + ",'" + pUsername + "','" + auth.hash(pPassword.toCharArray()) +"', 0, 0, 0)");
+				con.executeStatement("INSERT INTO users (user_id, username, password, liga_id, liga_punkte) VALUES (" + id + ",'" + pUsername + "','" + auth.hash(pPassword.toCharArray()) +"', 0, 0)");
 				con.close();
 				//Prï¿½fen, ob es einen Fehler beim einfï¿½gen gab
 				if(con.getErrorMessage() != null) {
-					System.out.println(con.getErrorMessage());
+					System.out.println("1 : " + con.getErrorMessage());
 					return "Fehler beim Einfuegen des Users";
 				}
 				//Bestï¿½tigung des Einfï¿½gens
@@ -288,11 +288,11 @@ public class DatabaseExecuter {
 		return null;
 	}
 	
-	public boolean joinLeague(String pLeagueName) {
+	public boolean joinLeague(String pLeagueName, String pUsername) {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehlermeldung gibt
 		if(con.getErrorMessage() == null) {
-			con.executeStatement("UPDATE `users` SET `liga_id` = '1' WHERE `users`.`user_id` = (SELECT `liga_id` FROM `ligen` WHERE ligen.name LIKE'" + pLeagueName + "')");
+			con.executeStatement("UPDATE `users` SET `liga_id`=(SELECT liga_id FROM ligen WHERE ligen.name = '" + pLeagueName + "'), `liga_punkte`=0 WHERE username LIKE '" + pUsername +"';");
 			//Wenn es keine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
 				System.out.println(2);

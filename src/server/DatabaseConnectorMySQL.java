@@ -1,4 +1,4 @@
-package server;
+ 
 
 import java.sql.*;
 
@@ -13,7 +13,7 @@ import java.sql.*;
  * Ein Objekt der Klasse DatabaseConnector ermoeglicht die Abfrage und Manipulation 
  * einer MySQL-Datenbank. 
  * Beim Erzeugen des Objekts wird eine Datenbankverbindung aufgebaut, so dass 
- * anschließend SQL-Anweisungen an diese Datenbank gerichtet werden koennen.
+ * anschlieï¿½end SQL-Anweisungen an diese Datenbank gerichtet werden koennen.
  * </p>
  * 
  * @author Qualitaets- und UnterstuetzungsAgentur - Landesinstitut fuer Schule
@@ -49,7 +49,7 @@ public class DatabaseConnectorMySQL{
    * Der Auftrag schickt den im Parameter pSQLStatement enthaltenen SQL-Befehl an die 
    * Datenbank ab. 
    * Handelt es sich bei pSQLStatement um einen SQL-Befehl, der eine Ergebnismenge 
-   * liefert, so kann dieses Ergebnis anschließend mit der Methode getCurrentQueryResult 
+   * liefert, so kann dieses Ergebnis anschlieï¿½end mit der Methode getCurrentQueryResult 
    * abgerufen werden.
    */
   public void executeStatement(String pSQLStatement){  
@@ -101,7 +101,7 @@ public class DatabaseConnectorMySQL{
           j = j + 1;
         }
                
-        //Statement schließen und Ergebnisobjekt erstellen
+        //Statement schlieï¿½en und Ergebnisobjekt erstellen
         statement.close();
         currentQueryResult = new QueryResult(resultData, resultColumnNames, resultColumnTypes);
 
