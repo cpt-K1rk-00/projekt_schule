@@ -104,7 +104,19 @@ public class GameServer extends Server {
 			}
 		//Freund hinzufï¿½gen
 		}else if(msg[0].equals("ADD_FRIEND")) {
-			
+			String result = db.addFriendship(msg[1], msg[2]);
+            //Wenn die Freundschaft hinzugefuegt wurde
+            if(result.equals("Freundschaft hinzugefuegt")){
+                //Prüfen ob neuer Freund online
+                User tmp = getOnlineUser(msg[2]);
+                if(tmp != null){
+                    this.send(tmp.getIp(), tmp.getPort(),"3:fordere Freunde");
+                }
+                this.send(pClientIP, pClientPort, "3:fordere Freunde");
+            }else{
+                //Nachricht schicken
+                this.send(pClientIP, pClientPort,"6:" + result);
+            }
 		//Mitglieder der Liga laden
 		}else if(msg[0].equals("LOAD_LEAGUE")) {
 			//Username laden

@@ -145,6 +145,8 @@ public class GameClient extends Client{
 					}
 				});
 			}
+		}else if(msg[0].equals("6")) {
+			Platform.runLater(new Runnable(){ public void run(){gui.showError(msg[1]);}});
 		}else if(msg[0].equals("8")) {
 			if(msg[1].equals("Fehler beim Verlassen der Liga")) {
 				Platform.runLater(new Runnable() {public void run() {gui.showError("Fehler beim Verlassen der Liga");}});
@@ -239,7 +241,7 @@ public class GameClient extends Client{
 	 * @param pUsername
 	 */
 	public void addFriend(String pUsername) {
-		
+		this.send("ADD_FRIEND:" + this.username + ":" + pUsername);
 	}
 	
 	/**
