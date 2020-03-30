@@ -304,6 +304,22 @@ public class DatabaseExecuter {
 		return false;
 	}
 	
+	public boolean addPoints(String pUsername) {
+		DatabaseConnectorMySQL con = getCon();
+		//Wenn es keine Fehlermeldung gibt
+		if(con.getErrorMessage() == null) {
+			con.executeStatement("UPDATE `users` SET `liga_punkte` = liga_punkte + 3 WHERE `users`.`username` LIKE'" + pUsername + "'");
+			//Wenn es keine Fehlermeldung gab
+			if(con.getErrorMessage() == null) {
+				System.out.println(2);
+				return true;
+			}else {
+				System.out.println(con.getErrorMessage());
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Verlï¿½sst eine Liga, in der sich der User befindet.
 	 * Gibt den Namen der Liga zurï¿½ck, damit deren Ansicht aktualisiert werden

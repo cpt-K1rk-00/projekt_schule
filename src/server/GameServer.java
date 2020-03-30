@@ -180,36 +180,40 @@ public class GameServer extends Server {
 		}else if (msg[0].equals("START_GAME")) {
 			System.out.println("rtyjghjkk");
 		    onlinePlayers.toFirst();
+		    String playerLeague = null;
+		    Player player = null;
 		    while(onlinePlayers.hasAccess()) {
 		    	//Wenn der User online ist
 		    	System.out.println(onlinePlayers.getContent());
 		    	if(onlinePlayers.getContent().getConnection().equals(pClientIP+":"+pClientPort)) {
 		    		waitingPlayers.append(onlinePlayers.getContent());
+		    		player = onlinePlayers.getContent();
+		    		playerLeague = db.getLeagueNameFromUsername(onlinePlayers.getContent().getUsername());
 		    		break;
 		    	}
 		    	onlinePlayers.next();
 		    }
-		    int numberOfWaitingPlayers = 0;
+		    Player opponent = null;
 		    waitingPlayers.toFirst();
 		    while(waitingPlayers.hasAccess()) {
 		    	//Wenn der User online ist
-		    	numberOfWaitingPlayers++;
-		    	System.out.println(waitingPlayers.getContent().getUsername());
+		    	if (db.getLeagueNameFromUsername(waitingPlayers.getContent().getUsername()).equals(playerLeague)) {
+		    		opponent = waitingPlayers.getContent();
+		    		waitingPlayers.remove();
+		    		break;
+		    	}
 		    	waitingPlayers.next();
 		    }
-		    if (numberOfWaitingPlayers >= 2) {
-		    	waitingPlayers.toFirst();
-		    	Player player1 = waitingPlayers.getContent();
+		    if (opponent != null) {
+		    	waitingPlayers.toLast();
 		    	waitingPlayers.remove();
-		    	Player player2 = waitingPlayers.getContent();
-		    	waitingPlayers.remove();
-		    	Game newGame = new Game(player1, player2);
+		    	Game newGame = new Game(player, opponent);
 		    	runningGames.append(newGame);
 		    	System.out.println("starting game");
-		    	System.out.println(player1.getConnection().split(":")[0]);
-		    	System.out.println(Integer.parseInt(player1.getConnection().split(":")[1]));
-	    		send(player1.getConnection().split(":")[0], Integer.parseInt(player1.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":true");
-	    		send(player2.getConnection().split(":")[0], Integer.parseInt(player2.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":false");
+		    	System.out.println(player.getConnection().split(":")[0]);
+		    	System.out.println(Integer.parseInt(player.getConnection().split(":")[1]));
+	    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":true");
+	    		send(opponent.getConnection().split(":")[0], Integer.parseInt(opponent.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":false");
 		    }
 		}else if(msg[0].equals("GET_ALL_LEAGUES")) {
 			List<String> names = db.getLeagues();
@@ -252,7 +256,13 @@ public class GameServer extends Server {
 			    	}
 		    	}
 		    	if (runningGames.getContent().isFinished()) {
+		    		for (Player player: runningGames.getContent().getPlayers()) {
+		    			if (player.getSymbol() == runningGames.getContent().getWinner()) {
+		    				db.addPoints(player.getUsername());
+		    			}
+		    		}
 		    		runningGames.remove();
+		    		
 		    	}
 		    	runningGames.next();
 		   }
