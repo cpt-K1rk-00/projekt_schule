@@ -1,3 +1,5 @@
+package server;
+
 public class Node<T> {
  
 	private T data = null;
