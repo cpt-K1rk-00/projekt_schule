@@ -18,6 +18,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -27,6 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.Scene;
@@ -94,45 +97,39 @@ public class Main extends Application {
 	}
 	
 	public Scene setGameScene(String boardAsString, String opponent, boolean yourTurn) {
-		int pX = 0; int pY = 0; int pW = 50; int pH = 50;
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
 				final int tmpX = x;
 				final int tmpY = y;
 				board[y][x] = new Button();
+				board[y][x].setMinSize(200, 200);
 				char symbol = boardAsString.charAt(3*y+x);
 				if (symbol == '#') {
 					board[y][x].setText("");
 				}
 				else {
-					board[y][x].setText(""+symbol);
+					if(symbol == 'x') {
+						Image img = new Image(ResourceLoader.load("cross.jpg"));
+						board[y][x].setGraphic(new ImageView(img));
+					}else {
+						Image img = new Image(ResourceLoader.load("circle.png"));
+						board[y][x].setGraphic(new ImageView(img));
+					}
+					board[y][x].setDisable(true);
 				}
-				board[y][x].setLayoutX(pX + pW * x);
-				board[y][x].setLayoutY(pY + pH * y);
-				board[y][x].setPrefWidth(pW);
-				board[y][x].setPrefHeight(pH);
-				
 				board[y][x].setOnAction(e -> {
 					client.sendTurn(tmpX, tmpY);
 				});
 			}
 		}
-		VBox store = new VBox();
-		for (int y = 0; y < 3; y++) {
-			HBox store2 = new HBox();
-			for (int x = 0; x < 3; x++) {
-				store2.getChildren().add(board[y][x]);
-				store2.setAlignment(Pos.CENTER);
-				store2.setSpacing(10);
-				store2.setStyle("-fx-background-color:POWDERBLUE");
+		GridPane root = new GridPane();
+		root.setMinSize(600, 600);
+		for(int y = 0; y < 3; y++) {
+			for(int x = 0; x < 3; x++) {
+				root.add(board[y][x],x,y);
 			}
-			store.getChildren().add(store2);
 		}
-		store.setAlignment(Pos.CENTER);
-		store.setSpacing(10);
-		store.setStyle("-fx-background-color:POWDERBLUE");
-		Scene scene = new Scene(store, x, y);
-		return scene;
+		return new Scene(root, 600 , 600);
 	}
 
 	/**
@@ -624,6 +621,7 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
+		System.out.println(1);
 		launch(args);
 	}
 

@@ -347,6 +347,7 @@ public class DatabaseExecuter {
 	}
 	
 	public static void main (String[] args) {
+		System.out.println(1);
 		DatabaseExecuter ex = new DatabaseExecuter();
 		ex.leaveLeague("killer123");
 	}
