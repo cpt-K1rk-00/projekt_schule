@@ -188,26 +188,14 @@ public class GameClient extends Client{
 			}
 		}
 		if (msg[0].contentEquals("PLAYER_TURN_RESPONSE")) {
+			System.out.println(pMessage);
 			String winner = msg[1];
 			String boardAsString = msg[2];
 			boolean yourTurn = msg[3] == "true";
 			Platform.runLater(new Runnable() {
-				
 				@Override
 				public void run() {
-					// TODO Auto-generated method stub
-
-					for (int y = 0; y < 3; y++) {
-						for (int x = 0; x < 3; x++) {
-							char symbol = boardAsString.charAt(3*y+x);
-							if (symbol == '#') {
-								gui.board[y][x].setText("");
-							}
-							else {
-								gui.board[y][x].setText(""+symbol);
-							}
-						}
-					}
+					gui.updateScene(gui.setGameScene(boardAsString, msg[1], false));
 				}
 			});
 			
@@ -323,6 +311,7 @@ public class GameClient extends Client{
 	 * @param pLeagueName
 	 */
 	public void joinLeague(String pLeagueName) {
+		System.out.println("Liga breiten Anfrage");
 		this.send("JOIN_LEAGUE:" + this.getUsername() + ":" + pLeagueName);
 	}
 	

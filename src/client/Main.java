@@ -214,7 +214,6 @@ public class Main extends Application {
 			public void handle(ActionEvent event) {
 				// Passwort und Username d�rfen nicht leer sein
 				if (inputUsername.getText().equals("") || inputPassword.getText().equals("")) {
-
 					showError("Username und Password d�rfen nicht leer sein");
 				} else {
 					client.register(inputUsername.getText(), inputPassword.getText());
@@ -292,6 +291,14 @@ public class Main extends Application {
 		Scene scene = new Scene(store, x, y);
 		return scene;
 	}
+	
+	public Scene setStartScreen() {
+		BorderPane root = new BorderPane();
+		Image img = new Image(ResourceLoader.load("waiting.gif"));
+		root.setCenter(new ImageView(img));
+		
+		return new Scene(root, 500, 500);
+	}
 
 	public void updateScene(Scene scene) {
 		mainStage.setScene(scene);
@@ -344,7 +351,7 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				// TODO Auto-generated method stub
-				updateScene(setGameScene("#########", "Waiting For Opponent", false));
+				updateScene(setStartScreen());
 				client.sendStartGame();
 			}
 			

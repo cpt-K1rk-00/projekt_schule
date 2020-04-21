@@ -284,13 +284,14 @@ public class DatabaseExecuter {
 		return null;
 	}
 	
-	public boolean joinLeague(String pLeagueName) {
+	public boolean joinLeague(String pLeagueName, String pUsername) {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehlermeldung gibt
 		if(con.getErrorMessage() == null) {
-			con.executeStatement("UPDATE `users` SET `liga_id` = '1' WHERE `users`.`user_id` = (SELECT `liga_id` FROM `ligen` WHERE ligen.name LIKE'" + pLeagueName + "')");
+			con.executeStatement("UPDATE `users` SET `liga_id`=(SELECT liga_id FROM ligen WHERE ligen.name = '" + pLeagueName + "'), `liga_punkte`=0 WHERE username LIKE '" + pUsername +"';");
 			//Wenn es keine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
+				System.out.println(2);
 				return true;
 			}else {
 				System.out.println(con.getErrorMessage());

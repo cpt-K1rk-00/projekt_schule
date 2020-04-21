@@ -173,7 +173,15 @@ public class GameServer extends Server {
 			}else {
 				this.send(pClientIP, pClientPort, "8:Fehler beim Verlassen der Liga");
 			}
-		}else if(msg[0].equals("REMOVE_FRIEND")){
+		}else if(msg[0].equals("JOIN_LEAGUE")) {
+			 //Der Liga beitreten
+            if(db.joinLeague(msg[2],msg[1])) {
+                this.send(pClientIP, pClientPort, "10:Liga beigetreten");
+            }else {
+                this.send(pClientIP, pClientPort, "10:Fehler beim Beitritt der Liga");
+            }
+		} 
+		else if(msg[0].equals("REMOVE_FRIEND")){
 			//Die Verbindung herstellen
 			if(db.removeFriendship(msg[1], msg[2])) {
 				this.send(pClientIP, pClientPort, "5:Freund entfernt");
@@ -203,7 +211,7 @@ public class GameServer extends Server {
 		    waitingPlayers.toFirst();
 		    while(waitingPlayers.hasAccess()) {
 		    	//Wenn der User online ist
-		    	if (db.getLeagueNameFromUsername(waitingPlayers.getContent().getUsername()).equals(playerLeague)) {
+		    	if (db.getLeagueNameFromUsername(waitingPlayers.getContent().getUsername()).equals(playerLeague) && !waitingPlayers.getContent().getConnection().equals(player.getConnection())) {
 		    		opponent = waitingPlayers.getContent();
 		    		waitingPlayers.remove();
 		    		break;
@@ -233,14 +241,7 @@ public class GameServer extends Server {
 			}else {
 				this.send(pClientIP, pClientPort, "12:Fehler beim laden der Ligen");
 			}
-		} else if(msg[0].equals("JOIN_LEAGUE")){
-			//Der Liga beitreten
-			if(db.joinLeague(msg[1])) {
-				this.send(pClientIP, pClientPort, "10:Liga beigetreten");
-			}else {
-				this.send(pClientIP, pClientPort, "10:Fehler beim Beitritt der Liga");
-			}
-		}else if (msg[0].equals("TURN")) {
+		} else if (msg[0].equals("TURN")) {
 		    int[] coords = {Integer.parseInt(msg[1]), Integer.parseInt(msg[2])};
 		    runningGames.toFirst();
 		    while(runningGames.hasAccess()) {
@@ -354,6 +355,14 @@ public class GameServer extends Server {
             this.send(onlinePlayers.getContent().getConnection().split(":")[0], Integer.parseInt(onlinePlayers.getContent().getConnection().split(":")[1]),"3:fordere Freunde");
             this.send(onlinePlayers.getContent().getConnection().split(":")[0], Integer.parseInt(onlinePlayers.getContent().getConnection().split(":")[1]),"8:Lade Liga");
             onlinePlayers.next();
+        }
+        //remove from waiting list
+        this.waitingPlayers.toFirst();
+        while(waitingPlayers.hasAccess()) {
+        	if(waitingPlayers.getContent().getConnection().equals(pClientIP + ":" + pClientPort)) {
+        		waitingPlayers.remove();
+        		break;
+        	}
         }
     }
 
