@@ -97,6 +97,12 @@ public class Main extends Application {
 	}
 	
 	public Scene setGameScene(String boardAsString, String opponent, boolean yourTurn) {
+		if(yourTurn) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setContentText("Your Turn");
+			alert.setTitle("info");
+			alert.showAndWait();
+		}
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
 				final int tmpX = x;
@@ -106,6 +112,11 @@ public class Main extends Application {
 				char symbol = boardAsString.charAt(3*y+x);
 				if (symbol == '#') {
 					board[y][x].setText("");
+					if(yourTurn) {
+						board[y][x].setOnAction(evt -> {
+							client.sendTurn(tmpX, tmpY);
+						});
+					}
 				}
 				else {
 					if(symbol == 'x') {
@@ -115,11 +126,7 @@ public class Main extends Application {
 						Image img = new Image(ResourceLoader.load("circle.png"));
 						board[y][x].setGraphic(new ImageView(img));
 					}
-					board[y][x].setDisable(true);
 				}
-				board[y][x].setOnAction(e -> {
-					client.sendTurn(tmpX, tmpY);
-				});
 			}
 		}
 		GridPane root = new GridPane();

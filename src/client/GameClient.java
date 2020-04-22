@@ -8,6 +8,8 @@ import com.sun.org.apache.bcel.internal.generic.GETFIELD;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -188,17 +190,34 @@ public class GameClient extends Client{
 			}
 		}
 		if (msg[0].contentEquals("PLAYER_TURN_RESPONSE")) {
-			System.out.println(pMessage);
-			String winner = msg[1];
-			String boardAsString = msg[2];
-			boolean yourTurn = msg[3] == "true";
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					gui.updateScene(gui.setGameScene(boardAsString, msg[1], false));
-				}
-			});
-			
+			if(msg[1].equals("DONE")) {
+				Platform.runLater(new Runnable() {
+					public void run() {
+						Alert alert = new Alert(AlertType.INFORMATION);
+						alert.setTitle("tictactoe");
+						if(msg[2].equals("WON")) {
+							alert.setContentText("YOU WON AND EARNED 3 POINTS");
+						}else if(msg[2].equals("LOST")) {
+							alert.setContentText("YOUR OPPONENT WON AND EARNED 3 POINTS");
+						}else {
+							alert.setContentText("TIE");
+						}
+						alert.showAndWait();
+						gui.updateScene(gui.setMainMenu());
+					}
+				});
+			}else {
+				System.out.println(pMessage);
+				String winner = msg[1];
+				String boardAsString = msg[2];
+				boolean yourTurn = msg[3].equals( "true");
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						gui.updateScene(gui.setGameScene(boardAsString, msg[1], yourTurn));
+					}
+				});
+			}
 		}
 	}
 	

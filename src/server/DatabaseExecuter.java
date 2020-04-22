@@ -304,7 +304,8 @@ public class DatabaseExecuter {
 		DatabaseConnectorMySQL con = getCon();
 		//Wenn es keine Fehlermeldung gibt
 		if(con.getErrorMessage() == null) {
-			con.executeStatement("UPDATE `users` SET `liga_punkte` = 'liga_punkte + 3 WHERE `users`.`user_id` = (SELECT `liga_id` FROM `ligen` WHERE ligen.name LIKE'" + pUsername + "')");
+			System.out.println("UPDATE `users` SET `liga_punkte`= users.liga_punkte +3 WHERE users.username LIKE '" + pUsername + "'");
+			con.executeStatement("UPDATE `users` SET `liga_punkte`= users.liga_punkte +3 WHERE users.username LIKE '" + pUsername + "'");
 			//Wenn es keine Fehlermeldung gab
 			if(con.getErrorMessage() == null) {
 				return true;
@@ -350,6 +351,6 @@ public class DatabaseExecuter {
 	public static void main (String[] args) {
 		System.out.println(1);
 		DatabaseExecuter ex = new DatabaseExecuter();
-		ex.leaveLeague("killer123");
+		ex.addPoints("killer123");
 	}
 }
