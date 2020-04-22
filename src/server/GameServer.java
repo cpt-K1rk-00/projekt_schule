@@ -269,10 +269,11 @@ public class GameServer extends Server {
 		    		}
 		    	}
 		    	if (runningGames.getContent().isFinished()) {
+		    		//change the stats
+		    		db.updateStats(runningGames.getContent().getPlayers()[0], runningGames.getContent().getPlayers()[1], runningGames.getContent().getWinner());
 		    		for (Player player: runningGames.getContent().getPlayers()) {
 		    			if(runningGames.getContent().getWinner() == '#') {
 		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:TIE:" + player.getUsername());
-
 		    			} else if (player.getSymbol() == runningGames.getContent().getWinner()) {
 		    				db.addPoints(player.getUsername());
 		    				askForMembers(player.getUsername());
@@ -287,6 +288,17 @@ public class GameServer extends Server {
 		    	}
 		    	runningGames.next();
 		   }
+		}else if(msg[0].equals("DATAREQUEST")){
+			int[] result = db.getStats(msg[1]);
+			if(result == null) {
+				this.send(pClientIP, pClientPort, "DATAREQUEST:ERROR");
+			}else {
+				String answer = "DATAREQUEST";
+				for(int i = 0; i < result.length; i++) {
+					answer = answer + ":" + result[i];
+				}
+				this.send(pClientIP, pClientPort, answer);
+			}
 		}else{
 			// Fehlermeldung zur�ckgeben
 			this.send(pClientIP, pClientPort, "4:Username nicht erkannt");

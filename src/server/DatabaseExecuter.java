@@ -1,5 +1,7 @@
 package server;
 
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+
 /**
  * Die Klasse dient als Schnittstelle zu der Klasse DatabaseConnectorMySQL und fï¿½hrt Vorgï¿½nge, wie den
  * Login-Vorgang oder das erstellen einer Freundesliste aus.
@@ -337,6 +339,22 @@ public class DatabaseExecuter {
 	}
 	
 	/**
+	 * Updated die Statistik.
+	 */
+	public void updateStats(Player player1, Player player2, char winner) {
+		DatabaseConnectorMySQL con = getCon();
+		if(con != null) {
+			String win = "0";
+			if(player1.getSymbol() == winner) {
+				win = "1";
+			}else if(player2.getSymbol() == winner){
+				win = "2";
+			}
+			con.executeStatement("INSERT INTO `historie`(`user_id1`, `user_id2`, `ausgang`) VALUES ((SELECT users.user_id FROM users WHERE users.username LIKE '" + player1.getUsername() + "'),(SELECT users.user_id FROM users WHERE users.username LIKE '" + player2.getUsername() +"')," + win + ")");
+		}
+	}
+	
+	/**
 	 * Gibt ein Array mit den Siegen, Niederlagen und Unentschieden zurï¿½ck.
 	 * Existiert der Username nicht, wird null zurï¿½ck gegeben.
 	 * (Evlt. als Diagramm darstellen)
@@ -344,13 +362,27 @@ public class DatabaseExecuter {
 	 * @return
 	 */
 	public int[] getStats(String pUsername) {
-		//Spï¿½ter hinzufï¿½gen
+		DatabaseConnectorMySQL con = getCon();
+		if(con != null) {
+			con.executeStatement("SELECT users.user_id FROM users WHERE users.username LIKE '" + pUsername + "'" );
+			if(con.getErrorMessage() == null) {
+				String id = con.getCurrentQueryResult().getData()[0][0];
+				con.executeStatement("SELECT `user_id1`, `user_id2`, `ausgang` FROM `historie` WHERE user_id1 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pUsername + "') OR user_id2 = (SELECT users.user_id FROM users WHERE users.username LIKE '" + pUsername + "')");
+				if(con.getErrorMessage() == null) {
+					return DataAnalyzer.analyzer(con.getCurrentQueryResult().getData(), id);
+				}
+			}else {
+				System.out.println(con.getErrorMessage());
+			}
+		}
 		return null;
 	}
 	
 	public static void main (String[] args) {
-		System.out.println(1);
 		DatabaseExecuter ex = new DatabaseExecuter();
-		ex.addPoints("killer123");
+		int[] tmp = ex.getStats("killer123");
+		for(int i : tmp) {
+			System.out.println(i);
+		}
 	}
 }

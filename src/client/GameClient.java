@@ -1,5 +1,7 @@
 package client;
 
+import java.util.Arrays;
+
 import com.mysql.jdbc.UpdatableResultSet;
 import com.sun.org.apache.bcel.internal.classfile.Node;
 import com.sun.org.apache.bcel.internal.generic.GETFIELD;
@@ -232,6 +234,20 @@ public class GameClient extends Client {
 					}
 				});
 			}
+		} else if (msg[0].equals("DATAREQUEST")) {
+			System.out.println(pMessage);
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					String[] data = null;
+					if(!msg[1].equals("ERROR")) {
+						data = Arrays.copyOfRange(msg, 1, msg.length);
+					}
+					System.out.println(data);
+					gui.updateScene(gui.createStatisticView(data));
+				}
+			});
+
 		}
 		if (msg[0].contentEquals("PLAYER_TURN_RESPONSE")) {
 			if (msg[1].equals("DONE")) {

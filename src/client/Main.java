@@ -2,11 +2,16 @@ package client;
 
  
 
+import java.text.DecimalFormat;
 import java.util.Optional;
+
+import javax.swing.GroupLayout.Alignment;
 
 import com.sun.java.accessibility.util.GUIInitializedListener;
 
 import javafx.application.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -15,6 +20,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -33,7 +39,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import jdk.nashorn.internal.ir.SetSplitState;
 
 /**
@@ -91,6 +99,12 @@ public class Main extends Application {
 		mainStage = primaryStage;
 		mainStage.setTitle("g&f");
 		mainStage.setResizable(false);
+		mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent event) {
+				System.exit(0);
+			}
+		});
 		// Login erzeugen
 		mainStage.setScene(setLoginScene());
 		mainStage.show();
@@ -379,18 +393,30 @@ public class Main extends Application {
 				}
 			}
 		});
+		// Statistik aufrufen und verlassen
+		Button stats = new Button("stats");
+		stats.setMinHeight(y * 0.1);
+		stats.setMaxHeight(y * 0.1);
+		stats.setStyle(cssStyle);
+		stats.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				client.send("DATAREQUEST:" + client.getUsername());
+			}
+		});
 		Region buttonsRegion1 = new Region();
 		HBox.setHgrow(buttonsRegion1, Priority.ALWAYS);
 		Region buttonsRegion2 = new Region();
 		HBox.setHgrow(buttonsRegion2, Priority.ALWAYS);
+		Region buttonsRegion3 = new Region();
+		HBox.setHgrow(buttonsRegion3, Priority.ALWAYS);
 		HBox subButtonsStore = new HBox();
 		subButtonsStore = new HBox();
 		subButtonsStore.setAlignment(Pos.CENTER);
 		subButtonsStore.setMinWidth(x * 0.6);
 		subButtonsStore.setMaxWidth(x * 0.6);
 		subButtonsStore.setSpacing(30);
-		subButtonsStore.getChildren().addAll(playButton, manageLeague);
-		HBox buttonsStore = new HBox(subButtonsStore, buttonsRegion1, buttonsRegion2);
+		subButtonsStore.getChildren().addAll(playButton, manageLeague, stats);
+		HBox buttonsStore = new HBox(subButtonsStore, buttonsRegion1, buttonsRegion2, buttonsRegion3);
 		// Button symmetrisch unter der Liste erzeugen
 		buttonsStore.setPadding(new Insets(y * 0.06, x * 0.3, 20, 0));
 		// Der Wurzel hinzuf�gen
@@ -409,6 +435,8 @@ public class Main extends Application {
 		Scene tmp = new Scene(root, x, y);
 		return tmp;
 	}
+	
+	
 
 	/**
 	 * Stellt alle Freunde als Liste dar. Freunde die online sind k�nnen
@@ -487,6 +515,52 @@ public class Main extends Application {
 
 	public void setFriendBox(VBox friendBox) {
 		this.friendBox = friendBox;
+	}
+	
+	public Scene createStatisticView(String[] stats) {
+		VBox root = new VBox();
+		root.setStyle("-fx-background:POWDERBLUE;");
+		root.setAlignment(Pos.CENTER);
+		if(stats == null) {
+			Label label = new Label("ERROR");
+			label.setStyle("-fx-background:POWDERBLUE;");
+			label.setMinWidth(x * 0.7);
+			label.setTextAlignment(TextAlignment.CENTER);
+			label.setFont(new Font("Cambria", 30));
+			root.getChildren().add(label);
+		}
+		ObservableList<PieChart.Data> data = FXCollections.observableArrayList();
+		data.add(new PieChart.Data("wins", Double.parseDouble(stats[0])));
+		data.add(new PieChart.Data("defeats", Double.parseDouble(stats[1])));
+		data.add(new PieChart.Data("ties", Double.parseDouble(stats[2])));
+		PieChart chart = new PieChart(data);
+		chart.setPrefSize(x, y * 0.9);
+		for (final PieChart.Data data2 : chart.getData()) {
+		    data2.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,
+		        new EventHandler<MouseEvent>() {
+		            @Override public void handle(MouseEvent e) {
+		            	DecimalFormat df = new DecimalFormat("0.00");
+		            	double d = data2.getPieValue() / Double.parseDouble(stats[3]) * 100;
+		            	Alert alert = new Alert(AlertType.INFORMATION);
+		            	alert.setHeaderText(null);
+		            	alert.setTitle("quote");
+		            	alert.setGraphic(null);
+		            	alert.setContentText(df.format(d));
+		            	alert.showAndWait();
+		             }
+		        });
+		}
+		Button back = new Button("back");
+		back.setStyle(cssStyle);
+		back.setPrefHeight(y * 0.08);
+		back.setOnAction((evt) -> {
+			updateScene(setMainMenu());
+			client.loadLeague(client.getUsername());
+			client.getFriends(client.getUsername());
+		});
+		root.getChildren().add(chart);
+		root.getChildren().add(back);
+		return new Scene(root,x,y);
 	}
 
 	/**
@@ -635,7 +709,6 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(1);
 		launch(args);
 	}
 
