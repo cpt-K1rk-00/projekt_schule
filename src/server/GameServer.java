@@ -177,6 +177,7 @@ public class GameServer extends Server {
 			 //Der Liga beitreten
             if(db.joinLeague(msg[2],msg[1])) {
                 this.send(pClientIP, pClientPort, "10:Liga beigetreten");
+                askForMembers(msg);
             }else {
                 this.send(pClientIP, pClientPort, "10:Fehler beim Beitritt der Liga");
             }
@@ -254,27 +255,31 @@ public class GameServer extends Server {
 		    		if(game.getPlayers()[0].getConnection().equals(pClientIP + ":" + pClientPort)) {
 		    			System.out.println("in 1");
 		    			game.turn(game.getPlayers()[0], coords);
-		    			send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
-		    			send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
+		    			if(!game.isFinished()) {
+		    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
+		    				send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
+		    			}
 		    		}else {
 		    			System.out.println("in 2");
 		    			game.turn(game.getPlayers()[1], coords);
-		    			send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
-		    			send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
+		    			if(!game.isFinished()) {
+		    				send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
+		    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
+		    			}
 		    		}
-		    		
 		    	}
 		    	if (runningGames.getContent().isFinished()) {
 		    		for (Player player: runningGames.getContent().getPlayers()) {
 		    			if(runningGames.getContent().getWinner() == '#') {
-		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:TIE");
+		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:TIE:" + player.getUsername());
 
 		    			} else if (player.getSymbol() == runningGames.getContent().getWinner()) {
 		    				db.addPoints(player.getUsername());
+		    				askForMembers(player.getUsername());
 		    				//spieler über ausgang informieren
-		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:WON");
+		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:WON:" + player.getUsername());
 		    			}else {
-		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:LOST");
+		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:LOST:" + player.getUsername());
 		    			}
 		    		}
 		    		runningGames.remove();
@@ -324,6 +329,20 @@ public class GameServer extends Server {
     public void askForMembers(String[] msg) {
         //alle User der Liga
         List<String> member = db.getMembers(db.getLeagueNameFromUsername(msg[1]));
+        member.toFirst();
+        while(member.hasAccess()) {
+            //Wenn der User online ist
+            if(isPlayerOnline(member.getContent().split(";")[0])) {
+                Player aktUser = getPlayerIfOnline(member.getContent().split(";")[0]);
+                this.send(aktUser.getConnection().split(":")[0], Integer.parseInt(aktUser.getConnection().split(":")[1]), "8:Lade Liga");
+            }
+            member.next();
+        }
+    }
+    
+    public void askForMembers(String username) {
+        //alle User der Liga
+        List<String> member = db.getMembers(db.getLeagueNameFromUsername(username));
         member.toFirst();
         while(member.hasAccess()) {
             //Wenn der User online ist
