@@ -1,7 +1,5 @@
 package client;
 
- 
-
 import java.text.DecimalFormat;
 import java.util.Optional;
 
@@ -24,11 +22,14 @@ import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -40,6 +41,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jdk.nashorn.internal.ir.SetSplitState;
@@ -109,9 +111,9 @@ public class Main extends Application {
 		mainStage.setScene(setLoginScene());
 		mainStage.show();
 	}
-	
+
 	public Scene setGameScene(String boardAsString, String opponent, boolean yourTurn) {
-		if(yourTurn) {
+		if (yourTurn) {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setContentText("Your Turn");
 			alert.setTitle("info");
@@ -123,20 +125,19 @@ public class Main extends Application {
 				final int tmpY = y;
 				board[y][x] = new Button();
 				board[y][x].setMinSize(200, 200);
-				char symbol = boardAsString.charAt(3*y+x);
+				char symbol = boardAsString.charAt(3 * y + x);
 				if (symbol == '#') {
 					board[y][x].setText("");
-					if(yourTurn) {
+					if (yourTurn) {
 						board[y][x].setOnAction(evt -> {
 							client.sendTurn(tmpX, tmpY);
 						});
 					}
-				}
-				else {
-					if(symbol == 'x') {
+				} else {
+					if (symbol == 'x') {
 						Image img = new Image(ResourceLoader.load("cross.jpg"));
 						board[y][x].setGraphic(new ImageView(img));
-					}else {
+					} else {
 						Image img = new Image(ResourceLoader.load("circle.png"));
 						board[y][x].setGraphic(new ImageView(img));
 					}
@@ -145,12 +146,12 @@ public class Main extends Application {
 		}
 		GridPane root = new GridPane();
 		root.setMinSize(600, 600);
-		for(int y = 0; y < 3; y++) {
-			for(int x = 0; x < 3; x++) {
-				root.add(board[y][x],x,y);
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
+				root.add(board[y][x], x, y);
 			}
 		}
-		return new Scene(root, 600 , 600);
+		return new Scene(root, 600, 600);
 	}
 
 	/**
@@ -203,8 +204,8 @@ public class Main extends Application {
 	}
 
 	/**
-	 * Erzeugt die GUI, welche die Daten, die f�r eine Registrierug notwendig sind,
-	 * einholt.
+	 * Erzeugt die GUI, welche die Daten, die f�r eine Registrierug notwendig
+	 * sind, einholt.
 	 */
 	public Scene setRegisterScene() {
 		// Titel �ndern
@@ -259,8 +260,8 @@ public class Main extends Application {
 	}
 
 	/**
-	 * Erzeugt die GUI, welche die Daten, die f�r eine Registrierug notwendig sind,
-	 * einholt.
+	 * Erzeugt die GUI, welche die Daten, die f�r eine Registrierug notwendig
+	 * sind, einholt.
 	 */
 	public Scene setLoginInput() {
 		// Titel �ndern
@@ -312,12 +313,12 @@ public class Main extends Application {
 		Scene scene = new Scene(store, x, y);
 		return scene;
 	}
-	
+
 	public Scene setStartScreen() {
 		BorderPane root = new BorderPane();
 		Image img = new Image(ResourceLoader.load("waiting.gif"));
 		root.setCenter(new ImageView(img));
-		
+
 		return new Scene(root, 500, 500);
 	}
 
@@ -375,7 +376,7 @@ public class Main extends Application {
 				updateScene(setStartScreen());
 				client.sendStartGame();
 			}
-			
+
 		});
 		// Liga verlassen/suchen hinzuf�gen
 		Button manageLeague = new Button("leave/add");
@@ -435,8 +436,6 @@ public class Main extends Application {
 		Scene tmp = new Scene(root, x, y);
 		return tmp;
 	}
-	
-	
 
 	/**
 	 * Stellt alle Freunde als Liste dar. Freunde die online sind k�nnen
@@ -482,12 +481,45 @@ public class Main extends Application {
 		while (friends.hasAccess()) {
 			Button aktButton = new Button(friends.getContent().getUsername());
 			aktButton.setMinWidth(x * 0.3);
-
+			// Pr�fen, ob freund online ist
+			if (friends.getContent().isOnline()) {
+				aktButton.setStyle(cssFriendGreen);
+			} else {
+				aktButton.setStyle(cssFriendRed);
+			}
 			aktButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent event) {
 					Button btn = (Button) event.getSource();
 					// linksklick
 					if (event.getButton() == MouseButton.PRIMARY) {
+						if (btn.getStyle().equals(cssFriendGreen)) {
+							// Open direkMessage Window
+							int xTmp = x / 2;
+							int yTmp = y / 8;
+							Stage stage = new Stage();
+							stage.setResizable(false);
+							stage.initModality(Modality.WINDOW_MODAL);
+							stage.initOwner(aktButton.getScene().getWindow());
+							VBox root = new VBox();
+							root.setAlignment(Pos.CENTER);
+							root.setSpacing(yTmp * 0.025);
+							root.setStyle("-fx-background:POWDERBLUE;");
+							TextField input = new TextField();
+							input.setPrefSize(xTmp - xTmp * 0.04, yTmp * 0.7);
+							input.setText("max. 120");
+							input.setTextFormatter(new TextFormatter<String>(
+									change -> change.getControlNewText().length() <= 120 ? change : null));
+							Button send = new Button("send");
+							send.setStyle(cssStyle);
+							send.setPrefSize(xTmp * 0.25, yTmp * 0.25);
+							send.setOnAction((evt) -> {
+								client.sendDirectMessage(input.getText(), btn.getText());
+								stage.close();
+							});
+							root.getChildren().addAll(input, send);
+							stage.setScene(new Scene(root, xTmp, yTmp));
+							stage.showAndWait();
+						}
 
 					} else if (event.getButton() == MouseButton.SECONDARY) {
 						Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -501,12 +533,6 @@ public class Main extends Application {
 					}
 				}
 			});
-			// Pr�fen, ob freund online ist
-			if (friends.getContent().isOnline()) {
-				aktButton.setStyle(cssFriendGreen);
-			} else {
-				aktButton.setStyle(cssFriendRed);
-			}
 			friendBox.getChildren().add(aktButton);
 			friends.next();
 		}
@@ -516,12 +542,12 @@ public class Main extends Application {
 	public void setFriendBox(VBox friendBox) {
 		this.friendBox = friendBox;
 	}
-	
+
 	public Scene createStatisticView(String[] stats) {
 		VBox root = new VBox();
 		root.setStyle("-fx-background:POWDERBLUE;");
 		root.setAlignment(Pos.CENTER);
-		if(stats == null) {
+		if (stats == null) {
 			Label label = new Label("ERROR");
 			label.setStyle("-fx-background:POWDERBLUE;");
 			label.setMinWidth(x * 0.7);
@@ -536,19 +562,19 @@ public class Main extends Application {
 		PieChart chart = new PieChart(data);
 		chart.setPrefSize(x, y * 0.9);
 		for (final PieChart.Data data2 : chart.getData()) {
-		    data2.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,
-		        new EventHandler<MouseEvent>() {
-		            @Override public void handle(MouseEvent e) {
-		            	DecimalFormat df = new DecimalFormat("0.00");
-		            	double d = data2.getPieValue() / Double.parseDouble(stats[3]) * 100;
-		            	Alert alert = new Alert(AlertType.INFORMATION);
-		            	alert.setHeaderText(null);
-		            	alert.setTitle("quote");
-		            	alert.setGraphic(null);
-		            	alert.setContentText(df.format(d));
-		            	alert.showAndWait();
-		             }
-		        });
+			data2.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent e) {
+					DecimalFormat df = new DecimalFormat("0.00");
+					double d = data2.getPieValue() / Double.parseDouble(stats[3]) * 100;
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setHeaderText(null);
+					alert.setTitle("quote");
+					alert.setGraphic(null);
+					alert.setContentText(df.format(d));
+					alert.showAndWait();
+				}
+			});
 		}
 		Button back = new Button("back");
 		back.setStyle(cssStyle);
@@ -560,7 +586,7 @@ public class Main extends Application {
 		});
 		root.getChildren().add(chart);
 		root.getChildren().add(back);
-		return new Scene(root,x,y);
+		return new Scene(root, x, y);
 	}
 
 	/**

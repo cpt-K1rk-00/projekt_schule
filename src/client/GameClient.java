@@ -1,6 +1,7 @@
 package client;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import com.mysql.jdbc.UpdatableResultSet;
 import com.sun.org.apache.bcel.internal.classfile.Node;
@@ -13,6 +14,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -30,6 +33,8 @@ public class GameClient extends Client {
 	private String league;
 	private Main gui;
 	private String username;
+	//Keys für TextNachrichten
+	private Map<String, Object> keys;
 
 	public GameClient(Main gui) {
 		// spï¿½ter anpassen
@@ -248,6 +253,27 @@ public class GameClient extends Client {
 				}
 			});
 
+		}else if(msg[0].equals("RECIEVE")){
+			Platform.runLater(new Runnable() {
+				public void run() {
+					if(msg[1].equals("DONE")) {
+						Alert alert = new Alert(AlertType.INFORMATION);
+						alert.setContentText("Nachricht erfolgreich verschickt");
+						alert.setGraphic(null);
+						alert.setHeaderText(null);
+						alert.setTitle("info");
+						alert.showAndWait();
+					}else {
+						Alert alert = new Alert(AlertType.INFORMATION);
+						Image img = new Image(ResourceLoader.load("Message.jpg"));
+						alert.setGraphic(new ImageView(img));
+						alert.setTitle("message");
+						alert.setHeaderText("From:" + msg[2]);
+						alert.setContentText(msg[1]);
+						alert.showAndWait();
+					}
+				}
+			});
 		}
 		if (msg[0].contentEquals("PLAYER_TURN_RESPONSE")) {
 			if (msg[1].equals("DONE")) {
@@ -402,6 +428,15 @@ public class GameClient extends Client {
 	public void joinLeague(String pLeagueName) {
 		System.out.println("Liga breiten Anfrage");
 		this.send("JOIN_LEAGUE:" + this.getUsername() + ":" + pLeagueName);
+	}
+	
+	/**
+	 * Schickt Direktnachricht.
+	 * @param pMessage
+	 * @param pUsername
+	 */
+	public void sendDirectMessage(String pMessage, String pUsername) {
+		this.send("MESSAGE:"+pUsername+":"+pMessage + ":" + this.username);
 	}
 
 	/**

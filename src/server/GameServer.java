@@ -299,6 +299,18 @@ public class GameServer extends Server {
 				}
 				this.send(pClientIP, pClientPort, answer);
 			}
+		}else if(msg[0].equals("MESSAGE")) {
+			//Verbindung suchen
+			onlinePlayers.toFirst();
+			while(onlinePlayers.hasAccess()) {
+				if(onlinePlayers.getContent().getUsername().equals(msg[1])) {
+					//Dem OnlineSpieler die Nachricht zukommen lasse
+					this.send(onlinePlayers.getContent().getConnection().split(":")[0], Integer.parseInt(onlinePlayers.getContent().getConnection().split(":")[1]), "RECIEVE:" + msg[2] + ":" + msg[3]);
+					this.send(pClientIP, pClientPort, "RECIEVE:DONE");
+					break;
+				}
+				onlinePlayers.next();
+			}
 		}else{
 			// Fehlermeldung zur�ckgeben
 			this.send(pClientIP, pClientPort, "4:Username nicht erkannt");
