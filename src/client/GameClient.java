@@ -33,8 +33,8 @@ public class GameClient extends Client {
 	private String league;
 	private Main gui;
 	private String username;
-	//Keys für TextNachrichten
-	private Map<String, Object> keys;
+	// Key
+	private final String key = "asdqeklockljqw";
 
 	public GameClient(Main gui) {
 		// spï¿½ter anpassen
@@ -245,7 +245,7 @@ public class GameClient extends Client {
 				@Override
 				public void run() {
 					String[] data = null;
-					if(!msg[1].equals("ERROR")) {
+					if (!msg[1].equals("ERROR")) {
 						data = Arrays.copyOfRange(msg, 1, msg.length);
 					}
 					System.out.println(data);
@@ -253,23 +253,27 @@ public class GameClient extends Client {
 				}
 			});
 
-		}else if(msg[0].equals("RECIEVE")){
+		} else if (msg[0].equals("RECIEVE")) {
 			Platform.runLater(new Runnable() {
 				public void run() {
-					if(msg[1].equals("DONE")) {
+					if (msg[1].equals("DONE")) {
 						Alert alert = new Alert(AlertType.INFORMATION);
 						alert.setContentText("Nachricht erfolgreich verschickt");
 						alert.setGraphic(null);
 						alert.setHeaderText(null);
 						alert.setTitle("info");
 						alert.showAndWait();
-					}else {
+					} else {
 						Alert alert = new Alert(AlertType.INFORMATION);
 						Image img = new Image(ResourceLoader.load("Message.jpg"));
 						alert.setGraphic(new ImageView(img));
 						alert.setTitle("message");
 						alert.setHeaderText("From:" + msg[2]);
-						alert.setContentText(msg[1]);
+						if (msg[3].equals("1")) {
+							alert.setContentText(Vigenere.decode(msg[1], key));
+						} else {
+							alert.setContentText(msg[1]);
+						}
 						alert.showAndWait();
 					}
 				}
@@ -429,14 +433,19 @@ public class GameClient extends Client {
 		System.out.println("Liga breiten Anfrage");
 		this.send("JOIN_LEAGUE:" + this.getUsername() + ":" + pLeagueName);
 	}
-	
+
 	/**
 	 * Schickt Direktnachricht.
+	 * 
 	 * @param pMessage
 	 * @param pUsername
 	 */
-	public void sendDirectMessage(String pMessage, String pUsername) {
-		this.send("MESSAGE:"+pUsername+":"+pMessage + ":" + this.username);
+	public void sendDirectMessage(String pMessage, String pUsername, boolean safe) {
+		if (safe) {
+			this.send("MESSAGE:" + pUsername + ":" + Vigenere.vigenere(pMessage, key) + ":" + this.username + ":1");
+		} else {
+			this.send("MESSAGE:" + pUsername + ":" + pMessage + ":" + this.username + ":0");
+		}
 	}
 
 	/**

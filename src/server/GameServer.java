@@ -305,7 +305,7 @@ public class GameServer extends Server {
 			while(onlinePlayers.hasAccess()) {
 				if(onlinePlayers.getContent().getUsername().equals(msg[1])) {
 					//Dem OnlineSpieler die Nachricht zukommen lasse
-					this.send(onlinePlayers.getContent().getConnection().split(":")[0], Integer.parseInt(onlinePlayers.getContent().getConnection().split(":")[1]), "RECIEVE:" + msg[2] + ":" + msg[3]);
+					this.send(onlinePlayers.getContent().getConnection().split(":")[0], Integer.parseInt(onlinePlayers.getContent().getConnection().split(":")[1]), "RECIEVE:" + msg[2] + ":" + msg[3] + ":" + msg[4]);
 					this.send(pClientIP, pClientPort, "RECIEVE:DONE");
 					break;
 				}

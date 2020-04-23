@@ -20,9 +20,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -495,7 +497,7 @@ public class Main extends Application {
 						if (btn.getStyle().equals(cssFriendGreen)) {
 							// Open direkMessage Window
 							int xTmp = x / 2;
-							int yTmp = y / 8;
+							int yTmp = y / 6;
 							Stage stage = new Stage();
 							stage.setResizable(false);
 							stage.initModality(Modality.WINDOW_MODAL);
@@ -509,14 +511,32 @@ public class Main extends Application {
 							input.setText("max. 120");
 							input.setTextFormatter(new TextFormatter<String>(
 									change -> change.getControlNewText().length() <= 120 ? change : null));
+							RadioButton safe = new RadioButton("safe");
+							safe.setSelected(true);
+							RadioButton unsafe = new RadioButton("unsafe");
+							ToggleGroup radioGroup = new ToggleGroup();
+							safe.setToggleGroup(radioGroup);
+							unsafe.setToggleGroup(radioGroup);
+							HBox store = new HBox(safe, unsafe);
+							store.setStyle("-fx-background:POWDERBLUE;");
 							Button send = new Button("send");
 							send.setStyle(cssStyle);
 							send.setPrefSize(xTmp * 0.25, yTmp * 0.25);
 							send.setOnAction((evt) -> {
-								client.sendDirectMessage(input.getText(), btn.getText());
-								stage.close();
+								if (safe.isSelected()) {
+									String txt = input.getText().toLowerCase();
+									if (justCharacter(txt)) {
+										client.sendDirectMessage(txt, btn.getText(), true);
+										stage.close();
+									} else {
+										showError("nur Buchstaben bitte");
+									}
+								} else {
+									client.sendDirectMessage(input.getText(), btn.getText(), false);
+									stage.close();
+								}
 							});
-							root.getChildren().addAll(input, send);
+							root.getChildren().addAll(input,store,send);
 							stage.setScene(new Scene(root, xTmp, yTmp));
 							stage.showAndWait();
 						}
@@ -732,6 +752,23 @@ public class Main extends Application {
 		errorAlert.setHeaderText("Error");
 		errorAlert.setContentText(pMessage);
 		errorAlert.showAndWait();
+	}
+
+	public boolean justCharacter(String pMessage) {
+		char[] all = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
+				't', 'u', 'v', 'w', 'x', 'y', 'z' };
+		for (char c : pMessage.toCharArray()) {
+			boolean tmp = false;
+			for (char c2 : all) {
+				if (c == c2) {
+					tmp = true;
+				}
+			}
+			if (!tmp) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static void main(String[] args) {
