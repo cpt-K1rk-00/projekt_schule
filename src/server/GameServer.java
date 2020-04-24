@@ -229,7 +229,28 @@ public class GameServer extends Server {
 	    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":true");
 	    		send(opponent.getConnection().split(":")[0], Integer.parseInt(opponent.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":false");
 		    }
-		}else if(msg[0].equals("GET_ALL_LEAGUES")) {
+		}else if (msg[0].equals("START_BOT_GAME")) {
+		    onlinePlayers.toFirst();
+		    String playerLeague = null;
+		    Player player = null;
+		    while(onlinePlayers.hasAccess()) {
+		    	//Wenn der User online ist
+		    	if(onlinePlayers.getContent().getConnection().equals(pClientIP+":"+pClientPort)) {
+		    		player = onlinePlayers.getContent();
+		    		playerLeague = db.getLeagueNameFromUsername(onlinePlayers.getContent().getUsername());
+		    		break;
+		    	}
+		    	onlinePlayers.next();
+		    }
+		    Player opponent = new Bot();
+
+	    	Game newGame = new Game(player, opponent);
+	    	player.setSymbol('x');
+	    	opponent.setSymbol('o');
+	    	runningGames.append(newGame);
+    		send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+newGame.getWinner()+":"+newGame.getBoardAsString()+":true");
+
+		} else if(msg[0].equals("GET_ALL_LEAGUES")) {
 			List<String> names = db.getLeagues();
 			if(names != null) {
 				String result = "";
@@ -252,18 +273,27 @@ public class GameServer extends Server {
 		    	//aktuelles Spiel suchen
 		    	if(game.getPlayers()[0].getConnection().equals(pClientIP + ":" + pClientPort) || game.getPlayers()[1].getConnection().equals(pClientIP + ":" + pClientPort)) {
 		    		//Zug machen
-		    		if(game.getPlayers()[0].getConnection().equals(pClientIP + ":" + pClientPort)) {
-		    			System.out.println("in 1");
+		    		if (!(game.getPlayers()[1] instanceof Bot)) {
+			    		if(game.getPlayers()[0].getConnection().equals(pClientIP + ":" + pClientPort)) {
+			    			System.out.println("in 1");
+			    			game.turn(game.getPlayers()[0], coords);
+			    			if(!game.isFinished()) {
+			    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
+			    				send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
+			    			}
+			    		}else {
+			    			System.out.println("in 2");
+			    			game.turn(game.getPlayers()[1], coords);
+			    			if(!game.isFinished()) {
+			    				send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
+			    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
+			    			}
+			    		}
+		    		} else {
 		    			game.turn(game.getPlayers()[0], coords);
 		    			if(!game.isFinished()) {
 		    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
-		    				send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
-		    			}
-		    		}else {
-		    			System.out.println("in 2");
-		    			game.turn(game.getPlayers()[1], coords);
-		    			if(!game.isFinished()) {
-		    				send(game.getPlayers()[1].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[1].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
+		    				game.getPlayers()[1].turn(game.board);  // TODO Pause
 		    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
 		    			}
 		    		}
@@ -277,7 +307,7 @@ public class GameServer extends Server {
 		    			} else if (player.getSymbol() == runningGames.getContent().getWinner()) {
 		    				db.addPoints(player.getUsername());
 		    				askForMembers(player.getUsername());
-		    				//spieler über ausgang informieren
+		    				//spieler ï¿½ber ausgang informieren
 		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:WON:" + player.getUsername());
 		    			}else {
 		    				this.send(player.getConnection().split(":")[0], Integer.parseInt(player.getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:DONE:LOST:" + player.getUsername());
