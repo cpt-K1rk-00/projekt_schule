@@ -9,7 +9,7 @@ package server;
  */
 public class TreeMaker
 {
-   private Node<Board> parent;
+   public Node<Board> parent;
    
    public TreeMaker(){
        setParent(new Node<Board>(new Board()));
@@ -30,7 +30,7 @@ public class TreeMaker
        for(int x = 0; x < 3; x++){
            for(int y = 0; y < 3; y++){
                //Neue M�glichkeit hinzuf�gen
-               char[][] aktBoard = aktNode.getData().getBaord();
+               char[][] aktBoard = aktNode.getData().getBoard();
                //pr�fen, ob das Feld frei ist
                if(aktBoard[y][x] == '#'){
                    //Zug setzen
@@ -60,9 +60,9 @@ public class TreeMaker
    
    public void travTree(Node<Board> aktNode) {
 	   //Ausgabe
-	   for(int i = 0; i < aktNode.getData().getBaord().length; i++) {
-		   for(int j = 0; j < aktNode.getData().getBaord().length; j++) {
-			  System.out.print(aktNode.getData().getBaord()[i][j]);
+	   for(int i = 0; i < aktNode.getData().getBoard().length; i++) {
+		   for(int j = 0; j < aktNode.getData().getBoard().length; j++) {
+			  System.out.print(aktNode.getData().getBoard()[i][j]);
 		   }
 		   System.out.println();
 	   }

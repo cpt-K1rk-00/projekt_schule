@@ -293,7 +293,7 @@ public class GameServer extends Server {
 		    			game.turn(game.getPlayers()[0], coords);
 		    			if(!game.isFinished()) {
 		    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":false");
-		    				game.getPlayers()[1].turn(game.board);  // TODO Pause
+		    				((Bot)game.getPlayers()[1]).turn(game.board);  // TODO Pause
 		    				send(game.getPlayers()[0].getConnection().split(":")[0], Integer.parseInt(game.getPlayers()[0].getConnection().split(":")[1]), "PLAYER_TURN_RESPONSE:"+game.getWinner()+":"+game.getBoardAsString()+":true");
 		    			}
 		    		}

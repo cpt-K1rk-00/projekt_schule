@@ -29,8 +29,8 @@ public void setBoard(char[][] pBoard){
         board = pBoard;
     }
     
-    public char[][] getBaord(){
-    	
+    public char[][] getBoard(){
+    	/*
         char[][] result = new char[3][3];
         
         for(int y = 0; y < 3; y++) {
@@ -39,7 +39,8 @@ public void setBoard(char[][] pBoard){
         		result[y][x] = this.board[y][x];
         	}
         }
-        return result;
+        return result;*/
+        return this.board;
     }
     
     public boolean setField(int x, int y, char symbol) {
@@ -67,7 +68,7 @@ public void setBoard(char[][] pBoard){
     	return winner;
     }
     
-    private char checkResult() {
+    public char checkResult() {
     	
     	for (int y = 0; y < 3; y++) {
     		for (int x = 1; x < 3; x++) {
